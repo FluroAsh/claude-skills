@@ -32,8 +32,8 @@ Read both files. If the current week's file does not exist, you will create it i
 Open the previous week's file and check each of the following. Fix anything that is incomplete before moving on:
 
 - **Daily entries** — Monday through Friday must each have at least one bullet point of content. If a day is blank or only contains `-`, fill it in using context from other days, ticket notes, or standup notes. If no context exists, write `[no data]`.
-- **Achievements → What** — must have at least one bullet describing what was shipped or completed.
-- **Achievements → Impact & How** — must explain the impact and how it was achieved.
+- **Achievements → Delivery** — must have at least one bullet describing what was shipped or progressed and why it mattered.
+- **Achievements → Craft** and **Achievements → Influence** — must each have at least one bullet where the daily entries support it; otherwise write `[no data]`.
 - **Brain Dump** — must have at least one real entry (not the template placeholder). Brain Dump is for reflections, observations, patterns, hypotheses, and architectural thoughts — **not a recap of Achievements**. If a point is already covered in Achievements, it must not appear in Brain Dump. The two sections should be entirely non-overlapping: Achievements = what was done and its impact (factual); Brain Dump = the analytical/reflective layer on top of that.
 
 Note: there is no "Goals for Next Week" section — carry-over goals are captured in the current week's **Goals for this week** (Step 6) instead.
