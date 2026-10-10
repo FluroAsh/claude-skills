@@ -11,7 +11,7 @@ A [Claude Code](https://code.claude.com/docs/en/overview) plugin with the skills
 | `daily-work-wrap` | Single-day catch-up for days you forgot to log | Obsidian, Jira, git, `gh`, Sunsama (optional) |
 | `standup` | Standup prep. Read-only, chat output only | Obsidian, Jira, git, `gh`, Sunsama (optional) |
 
-Invoke them namespaced, e.g. `/ash-skills:standup`. If `gh` or Sunsama is unavailable, the skills skip those steps.
+Invoke them namespaced, eg: `/ash-skills:standup`. If `gh` or Sunsama is unavailable, the skills skip those steps.
 
 ## Setup
 
@@ -88,12 +88,14 @@ Claude Code prompts for these when the plugin is enabled. Values are stored loca
 | Field | Required | Meaning | Example |
 |---|---|---|---|
 | `vault_name` | yes | Obsidian vault name, as the Obsidian CLI knows it | `Work` |
-| `vault_path` | yes | Absolute path to the vault root | `/Users/you/Documents/Work` |
+| `vault_path` | yes | Absolute path to the vault root | `/Users/<username>/Documents/Work` |
 | `weekly_log_template` | yes | Template note used to create a new week's log, relative to the vault root | `Templates/Weekly Work Log.md` |
 | `weekly_log_folder` | no | Folder for weekly logs, relative to the vault root. `{YEAR}` expands to the four-digit year. Default `Weekly Work Logs/{YEAR}` | `Logs/{YEAR}` |
 | `log_filename_format` | no | Filename pattern for a week's log, dated by that week's Monday. Default `MM-DD-YY.md` | `MM-DD-YY.md` |
-| `company_name` | no | Used to calibrate the weekly Tech Lead Review | `Acme` |
-| `review_context_files` | no | Notes (absolute or vault-relative) the Tech Lead Review is grounded in. Leave empty to skip the review | `Career/Goals.md` |
+| `review_context_files` | no | Notes describing your career goals, growth areas or role expectations, vault-relative or absolute. The Tech Lead Review measures your week against them. Leave empty to turn the review off | `Career/Goals.md` |
+| `company_name` | no | Company the Tech Lead Review is written for, so its bar matches where you work. Only used when the review is on | `Acme` |
+
+The Tech Lead Review is an optional closing section of `weekly-work-wrap`: a short, critical read of your week, written as a tech lead at your company, ending with one thing to try next week.
 
 ## Weekly log template
 

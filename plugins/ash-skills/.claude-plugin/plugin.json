@@ -3,50 +3,50 @@
   "author": {
     "name": "Ashley Thompson"
   },
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Shared skills & commands used across my day-to-day workflows",
   "userConfig": {
     "vault_name": {
       "type": "string",
       "title": "Obsidian vault name",
-      "description": "Vault name as the Obsidian CLI knows it",
+      "description": "Vault name as shown in Obsidian's vault switcher, eg: Work",
       "required": true
     },
     "vault_path": {
       "type": "directory",
       "title": "Obsidian vault path",
-      "description": "Absolute path to the vault root",
+      "description": "Absolute path to the vault root, eg: /Users/<username>/Documents/Obsidian/Work",
       "required": true
     },
     "weekly_log_folder": {
       "type": "string",
       "title": "Weekly log folder",
-      "description": "Folder for weekly logs, relative to the vault root. {YEAR} expands to the four-digit year",
+      "description": "Folder for weekly logs, relative to the vault root, eg: Daily/Weekly Work Logs/{YEAR}. {YEAR} expands to the four-digit year",
       "default": "Weekly Work Logs/{YEAR}"
     },
     "log_filename_format": {
       "type": "string",
       "title": "Weekly log filename",
-      "description": "Filename pattern for a week's log, dated by that week's Monday (MM = month, DD = day, YY = year)",
+      "description": "Filename for a week's log, dated by that week's Monday, eg: MM-DD-YY.md gives 03-16-26.md",
       "default": "MM-DD-YY.md"
     },
     "weekly_log_template": {
       "type": "string",
       "title": "Weekly log template note",
-      "description": "Template note used to create a new week's log, relative to the vault root",
+      "description": "Template note for a new week's log, relative to the vault root, eg: Templates/Weekly Work Log.md",
       "required": true
-    },
-    "company_name": {
-      "type": "string",
-      "title": "Company name",
-      "description": "Used to calibrate the weekly Tech Lead Review"
     },
     "review_context_files": {
       "type": "string",
-      "title": "Tech Lead Review context notes",
-      "description": "Notes (absolute, or vault-relative) the review is grounded in. Leave empty to skip the review",
+      "title": "Tech Lead Review: your goals notes",
+      "description": "Optional. weekly-work-wrap can end with a Tech Lead Review: a short, critical read of your week with one thing to try next week. It measures the week against the notes you list here, so point it at notes describing your career goals, growth areas or role expectations. One or more note paths, vault-relative or absolute, eg: Career/Goals.md. Leave empty to turn the review off",
       "multiple": true,
       "default": []
+    },
+    "company_name": {
+      "type": "string",
+      "title": "Tech Lead Review: company",
+      "description": "Optional, and only used when the Tech Lead Review is on. The review is written as a tech lead at this company, so the bar it holds your week to matches where you work, eg: Acme"
     }
   }
 }
