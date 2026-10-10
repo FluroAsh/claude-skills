@@ -1,0 +1,18 @@
+{
+  "name": "ash-skills",
+  "author": { "name": "Ashley Thompson" },
+  "version": "0.1.0",
+  "description": "Shared skills & commands used across my day-to-day workflows",
+  "userConfig": {
+    "vault_path": {
+      "type": "directory",
+      "title": "Obsidian Vault Path",
+      "description": "Absolute path to your Obsidian vault"
+    },
+    "weekly_folder": {
+      "type": "directory",
+      "title": "Weekly Log Folder (Obsidian)",
+      "description": "Weekly log folder, eg: '10 - Daily/Weekly Work Logs/{mm-dd-yyyy}'"
+    }
+  }
+}

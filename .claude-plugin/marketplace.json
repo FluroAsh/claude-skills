@@ -1,0 +1,11 @@
+{
+  "name": "ash-skills",
+  "description": "Shared skills & commands used across my day-to-day workflows",
+  "owner": { "name": "Ashley Thompson" },
+  "plugins": [
+    {
+      "name": "ash-skills",
+      "source": "./plugins/ash-skills"
+    }
+  ]
+}
