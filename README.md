@@ -83,16 +83,18 @@ Answer the config prompts, covered in the next section. Then run `/ash-skills:st
 
 ## Configuration
 
-Claude Code prompts for these when the plugin is enabled. Values are stored locally on each machine. Change them later with `/config`.
+Claude Code prompts for these when the plugin is enabled. Values are stored locally on each machine. Change them later with `/plugin configure ash-skills@ash-skills`.
+
+In the examples, replace anything in `<angle brackets>` with your own value. Anything in `{braces}`, and the `MM`, `DD` and `YY` letters, is typed exactly as shown and filled in by the skills.
 
 | Field | Required | Meaning | Example |
 |---|---|---|---|
 | `vault_name` | yes | Obsidian vault name, as the Obsidian CLI knows it | `Work` |
-| `vault_path` | yes | Absolute path to the vault root | `/Users/<username>/Documents/Work` |
-| `weekly_log_template` | yes | Template note used to create a new week's log, relative to the vault root | `Templates/Weekly Work Log.md` |
-| `weekly_log_folder` | no | Folder for weekly logs, relative to the vault root. `{YEAR}` expands to the four-digit year. Default `Weekly Work Logs/{YEAR}` | `Logs/{YEAR}` |
-| `log_filename_format` | no | Filename pattern for a week's log, dated by that week's Monday. Default `MM-DD-YY.md` | `MM-DD-YY.md` |
-| `review_context_files` | no | Notes describing your career goals, growth areas or role expectations, vault-relative or absolute. The Tech Lead Review measures your week against them. Leave empty to turn the review off | `Career/Goals.md` |
+| `vault_path` | yes | Absolute path to the vault root | `/Users/<username>/Documents/Obsidian/<vault>` |
+| `weekly_log_template` | yes | Template note used to create a new week's log, relative to the vault root | `<templates-folder>/Weekly Work Log.md` |
+| `weekly_log_folder` | no | Folder for weekly logs, relative to the vault root. Type `{YEAR}` exactly as shown; the skills fill in the current year. Default `Weekly Work Logs/{YEAR}` | `<folder>/Weekly Work Logs/{YEAR}` |
+| `log_filename_format` | no | Filename for a week's log, dated by that week's Monday. Type the letters exactly as shown: `MM` month, `DD` day, `YY` two-digit year. Default `MM-DD-YY.md` | `MM-DD-YY.md` gives `03-16-26.md` |
+| `review_context_files` | no | Notes describing your career goals, growth areas or role expectations, vault-relative or absolute. The Tech Lead Review measures your week against them. Leave empty to turn the review off | `<folder>/Goals.md` |
 | `company_name` | no | Company the Tech Lead Review is written for, so its bar matches where you work. Only used when the review is on | `Acme` |
 
 The Tech Lead Review is an optional closing section of `weekly-work-wrap`: a short, critical read of your week, written as a tech lead at your company, ending with one thing to try next week.
