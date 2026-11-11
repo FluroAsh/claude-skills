@@ -7,11 +7,11 @@ A [Claude Code](https://code.claude.com/docs/en/overview) plugin with the skills
 | Skill | What it does | Needs |
 |---|---|---|
 | `weekly-work-log` | Audits last week's log, then sets up this week's | Obsidian, Jira |
-| `weekly-work-wrap` | End-of-week wrap-up of the current log | Obsidian, Jira, git, `gh`, Sunsama (optional) |
-| `daily-work-wrap` | Single-day catch-up for days you forgot to log | Obsidian, Jira, git, `gh`, Sunsama (optional) |
+| `weekly-work-wrap` | End-of-week wrap-up of the current log | Obsidian, Jira, git, `gh`, Slack & Sunsama (optional) |
+| `daily-work-wrap` | Single-day catch-up for days you forgot to log | Obsidian, Jira, git, `gh`, Slack & Sunsama (optional) |
 | `standup` | Standup prep. Read-only, chat output only | Obsidian, Jira, git, `gh`, Sunsama (optional) |
 
-Invoke them namespaced, eg: `/ash-skills:standup`. If `gh` or Sunsama is unavailable, the skills skip those steps.
+Invoke them namespaced, eg: `/ash-skills:standup`. If `gh`, Slack or Sunsama is unavailable, the skills skip those steps.
 
 ## Setup
 
