@@ -3,7 +3,7 @@
   "author": {
     "name": "Ashley Thompson"
   },
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Shared skills & commands used across my day-to-day workflows",
   "userConfig": {
     "vault_name": {
