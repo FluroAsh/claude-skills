@@ -1,6 +1,6 @@
 ---
 name: standup
-description: Quick standup prep — pulls today's tasks (Sunsama, if available), today's weekly log entry, and git activity to produce a Today + Blockers summary. Chat output only, nothing written to the vault.
+description: Quick standup prep — pulls today's tasks (Sunsama, if available), today's weekly log entry, git, GitHub reviews, Slack and Jira to produce a Today + Blockers summary. Chat output only, nothing written to the vault.
 ---
 
 Pre-standup summary. Read-only — this skill never writes to Obsidian, Jira, or git. It reports what's already there.
@@ -21,7 +21,10 @@ Resolved from the shell, not plugin config:
 - Jira: the `jira` CLI's config (`~/.config/.jira/.config.yml`) supplies `{JIRA_SERVER}` (`server`), `{PROJECT_KEY}` (`project.key`) and `{BOARD_ID}` (`board.id`); `jira me` is the signed-in user; REST calls use `$JIRA_API_TOKEN`
 - Ticket status: read from Jira at runtime (`jira issue view {KEY} --raw`, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is *finished* when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
 - Repos: the repo in the current directory; for another repo, look beside it or ask where it lives
-- GitHub: `gh`, signed in; skip PR lookups if it isn't available
+- GitHub: `gh`, signed in; skip PR and review lookups if it isn't available. The login is `gh api user --jq .login`
+- Slack: used only if its MCP tools are available (`slack_search_public_and_private`); the user's own ID comes from that tool's description
+- Timezone: the user's local timezone (`date +%Z`). GitHub and Slack return UTC, so convert every timestamp before deciding which day it falls on
+- Window: `{prev}` is the previous working day (Friday when today is Monday); review and Slack lookups cover `{prev}` through now, since that's what the team hasn't heard yet
 - Sunsama: used only if its MCP tools are available
 
 ## Step 1 — Gather today's signal
@@ -54,6 +57,17 @@ From the repo (or another repo if git activity pointed there), list PRs the user
 - If a PR is tied to a ticket already in scope (via its description/title referencing the ticket key, e.g. "Driven by work on PROJ-101"), fold it into that ticket's entry in Step 5 rather than giving it a separate line — e.g. a fix PR raised off the back of a ticket, with known test failures blocking progress, becomes part of _why_ that ticket is blocked.
 - Don't assume the PR's check status reflects live reality — the last recorded CI run can be stale (e.g. shows "passed" even though the user knows there are unresolved test failures from working on it today). If the user states something that contradicts what CI shows, trust the user and flag the discrepancy in the Step 8 reference note, not the spoken body.
 
+## Step 2b — Reviews and PR state
+
+1. **Reviews of other people's PRs** (no commits or authored PRs, so otherwise missed):
+   `gh api graphql -f query='query{search(query:"is:pr reviewed-by:{login} -author:{login} updated:>={prev-1}",type:ISSUE,first:30){nodes{... on PullRequest{number title url state author{login} reviews(first:50,author:"{login}"){nodes{state submittedAt}}}}}}'`
+   Keep reviews whose `submittedAt`, in local time, falls in the window. Use `APPROVED`, `CHANGES_REQUESTED` and `COMMENTED`; never use `DISMISSED` (note it in Step 8). The search is org-wide, so no per-repo loop.
+2. **The user's own open PRs** (from Step 2a, plus any still open from earlier): `gh pr view {n} --json reviewDecision,reviews` — an approval, requested changes or a PR still waiting on review is news the team needs ("approved by X", "waiting on a reviewer").
+
+## Step 2c — Slack
+
+Search `from:<@{slack_user_id}> after:{prev-1}` (sorted by timestamp), keep messages in the window, and skim for work outcomes the team should know: decisions, issues raised with other teams, unblocking someone, waiting on someone. Skip chatter, reactions and social messages. Attach each outcome to its ticket where the thread names one. Ambiguous DMs (implied decision, unclear outcome) aren't used; note them in Step 8.
+
 ## Step 3 — Fold in continuity from yesterday, only where relevant
 
 Do not build a separate "yesterday" section. For a ticket that's continuing from yesterday (visible via Sunsama task history, or the log's prior-day entry, or a ticket status that implies it's mid-flight), fold a short clause into today's line for that ticket — e.g. "continuing the cart validation fix started yesterday" — only when it materially explains today's status. Skip this for tickets that are simply new today.
@@ -64,9 +78,10 @@ Check in this priority order, stopping at the first that gives a clear answer pe
 
 1. Obsidian notes (today's/this week's log) for an explicit blocker mention
 2. Sunsama task notes for an explicit blocker mention (unlikely, but check)
-3. Jira: `jira issue view {KEY} --plain` — check status (e.g. `Blocked`) or a flagged indicator
-4. Infer from whatever else is available (e.g. a task sitting untouched for days with no progress signal)
-5. If none of the above give a signal, default to **not blocked** — do not assume a blocker exists without evidence
+3. Slack threads from Step 2c, or a PR from Step 2b waiting on review / with changes requested
+4. Jira: `jira issue view {KEY} --plain` — check status (e.g. `Blocked`) or a flagged indicator
+5. Infer from whatever else is available (e.g. a task sitting untouched for days with no progress signal)
+6. If none of the above give a signal, default to **not blocked** — do not assume a blocker exists without evidence
 
 Track which of these ticks fired for each ticket — this feeds the assumptions footnote in Step 8.
 
@@ -80,19 +95,22 @@ Output has two sections: **Standup Update** (what the user is actually giving an
 
 This is spoken out loud in a standup, not read as a report — write it like the user is actually talking, first person, flowing sentences. Not a bullet-per-ticket dump with metadata tags, but not one giant merged paragraph either.
 
-- A ticket belongs here if there's genuine news: it was worked on today, its status changed, or there's a new/updated blocker worth surfacing.
+- A ticket belongs here if there's genuine news: it was worked on today, its status changed, its PR was reviewed/approved, a Slack thread moved it, or there's a new/updated blocker worth surfacing.
+- **Keep it compact** — one or two sentences per entry. Keep what the team needs: status/outcome, PR state, blockers and who it's waiting on, handoffs or asks of others. Cut process narration ("spent the morning", which subtasks are open) unless it explains a blocker.
 - **One entry per ticket, led by the ticket link plus its title, with a natural-sounding sentence or two underneath** — e.g. `**[PROJ-102](...) — Status shows UP while provisioning** — Dev and code review are both done here, the only thing blocking me is waiting on test data from the backend team.` The ticket key/link is how the user visually tracks which update is which, the title gives it a name they can scan without opening Jira, and the sentence after it is what they'd actually say.
 - Only merge two tickets into one entry/paragraph when they're genuinely the same piece of work or directly related — don't merge just because they happened on the same day. Default to one ticket, one entry.
 - Fold in continuity from yesterday within that ticket's own entry where relevant (per Step 3) — not as a separate section
 - Fold blockers (and any related PR from Step 2a) into the relevant ticket's entry rather than a separate hard-headed section — a blocker is just part of what the user would say about that ticket ("...the only thing blocking me is..."). If a ticket has no blocker, don't force a mention of "no blockers" — just don't say anything about it
 - Don't fabricate detail beyond what git/Sunsama/the log actually support — if a ticket has nothing beyond a generic title, say that plainly and briefly, in the same conversational tone (e.g. "not much to report yet here, still early")
 - No ceremony entries (standup, planning, refinement, retro) in the update itself
+- **Code reviews** of others' PRs go in one closing line, not per-ticket entries — e.g. `**Code reviews** — Approved Sam's #412 (PROJ-210) and left comments on Alex's #398.` Omit if there were none.
+- Slack outcomes fold into their ticket's entry. One not tied to a ticket but relevant to the team gets a single short line (e.g. "Raised the date-format mismatch with the payments team in #squad-ui"); never a transcript.
 
 ### Step 5a — "Nothing to update" section
 
 Once a ticket has been reported as blocked or untouched in a prior standup, its status is unlikely to have meaningfully changed by the next one unless something explicitly moved. Rather than forcing a spoken line for these every time, list them separately and briefly:
 
-- Candidates: Step 1a board tickets with no Step 1–3 signal today, and any ticket that's genuinely got nothing new to say (untouched backlog items, blocked tickets sitting exactly where they were).
+- Candidates: Step 1a board tickets with no Step 1–2c signal in the window, and any ticket that's genuinely got nothing new to say (untouched backlog items, blocked tickets sitting exactly where they were).
 - Format as a flat bullet list, one line per ticket: `[KEY](link) — title (status context, e.g. "blocked, untouched" or "backlog, untouched")`.
 - **If a ticket is `Blocked`, append the reason** found in Step 4 (latest Jira comment) — e.g. `blocked on the API change landing in staging`. Don't just say "blocked" with no reason if a reason was findable.
 - **Omit this entire section (including its heading) if nothing qualifies** — don't force it to appear empty or with a "nothing here" placeholder. A standup with every ticket having real news needs no such section at all.
@@ -108,9 +126,11 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 ```markdown
 ## Standup Update
 
-**[PROJ-101]({JIRA_SERVER}/browse/PROJ-101) — Show provider details on order confirmation** — This one's wrapped up today, dev and code review both done, handed over to QA and tested, so it's sitting at Ready For Release now.
+**[PROJ-101]({JIRA_SERVER}/browse/PROJ-101) — Show provider details on order confirmation** — PR got approved by Jordan, QA tested it, so it's at Ready For Release now.
 
-**[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** — Spent the morning on this, mocks are done but investigation, dev and code review are all still open. This one's actually tied up with the test-setup fix PR (#123) I raised yesterday off the back of this work — there are some test failures in there I'm still working through, and until that's merged I can't really finalise the label changes, so that's the real blocker on this ticket right now.
+**[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** — Mocks are done. It's blocked on my test-setup fix PR (#123) — still working through test failures there, and I can't finalise the labels until it's merged.
+
+**Code reviews** — Approved Sam's #412 (PROJ-210) and left comments on Alex's #398.
 
 ## Nothing to update
 
@@ -119,14 +139,14 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 ---
 
-**Reference note:** PR #123 (test-setup fix) was raised on {date} and is still open — its last recorded CI run passed, so the test failures aren't reflected there yet; that detail came from you, not from CI/PR data.
+**Reference note:** PR #123's last CI run passed, so the test failures came from you, not CI. Skipped: a dismissed review on #377 and a DM with Priya with no clear outcome.
 ```
 
-This is a shape reference, not literal content to reuse — ticket keys, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub lookups.
+This is a shape reference, not literal content to reuse — ticket keys, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
 
 ## Step 8 — Assumptions / reference footnote
 
-One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: assumptions made, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
+One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: assumptions made, sources skipped (no `gh`/Slack), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
 
 ```
 ---
@@ -137,7 +157,7 @@ If nothing was inferred, omit this section entirely — including the `---` sepa
 
 ## Guidelines
 
-- **Chat output only** — never write to the Obsidian vault, never update Jira, never touch git or GitHub (read-only `gh`/`git log` lookups only). This is strictly a read/report skill.
+- **Chat output only** — never write to the Obsidian vault, never update Jira, never touch git or GitHub (read-only `gh`/`git log`/Slack search only). This is strictly a read/report skill.
 - **Do not fabricate** — if a ticket has no commits and no notes beyond a generic title, say so plainly rather than inventing detail.
 - **No ceremony bullets** — don't list standup/planning/refinement/retro as "today" items.
 - **Natural first, links second** — the spoken update should read like a person talking; a markdown link on first mention of a ticket is fine, but don't let formatting override the natural flow of the sentence.
