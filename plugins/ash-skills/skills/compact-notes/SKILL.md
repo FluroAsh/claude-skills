@@ -11,7 +11,7 @@ Condense a note, or one section of it, in place. Callers bring their own shape; 
 - Vault: `${user_config.vault_path}` (`vault_path`)
 - Team note: `${user_config.team_context_file}` (`team_context_file`)
 
-Resolve both per `${CLAUDE_PLUGIN_ROOT}/reference/config.md`: the stored values above win, else discovery, else ask. The vault name for `obsidian vault="..."` is the last segment of the vault path. Read and write notes via the Obsidian CLI; fall back to Read/Edit only if the CLI fails.
+Resolve both per `${CLAUDE_PLUGIN_ROOT}/reference/config.md`: the stored values above win, else discovery, else ask. The vault name for `obsidian vault='...'` is the last segment of the vault path. Read and write notes via the Obsidian CLI; fall back to Read/Edit only if the CLI fails.
 
 ## Arguments
 
