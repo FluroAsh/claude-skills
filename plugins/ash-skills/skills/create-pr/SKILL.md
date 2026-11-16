@@ -8,12 +8,12 @@ Open a GitHub pull request for the current branch, or update the one that alread
 ## Environment
 
 - GitHub: `gh`, signed in. Stop and say so if it isn't
-- Jira and Confluence: an Atlassian MCP server, if connected. `{JIRA_SERVER}` is the site it reports. Tool names vary by server, so the steps name the capability and give a tool name as an example. Without it, leave the ticket as a bare key with no link and skip the Jira and Confluence lookups in Step 1a
+- Jira and Confluence: an Atlassian MCP server, if connected. `{JIRA_SERVER}` is `https://` plus `${user_config.jira_site}`, else the site the MCP reports. Tool names vary by server, so the steps name the capability and give a tool name as an example. Without it, leave the ticket as a bare key with no link and skip the Jira and Confluence lookups in Step 1a
 
 ## Step 1 — Gather context
 
 1. Base branch: the one the user names, otherwise `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
-2. `git log {base}..HEAD --oneline` and `git diff {base}...HEAD --stat`. Read the diff itself only where the commits don't explain the change.
+2. `git fetch origin {base}`, then `git log origin/{base}..HEAD --oneline` and `git diff origin/{base}...HEAD --stat`, so the description matches what GitHub will compare against. Read the diff itself only where the commits don't explain the change.
 3. `gh pr view --json url,title,body` — if a PR already exists for this branch, update it in Step 4 instead of creating one.
 4. Ticket id: taken from the branch name (e.g. `feature/PROJ-123-add-trending-badge`) or given by the user. Never invent one or use a placeholder (`PROJ-xxxxx`, `NO-TICKET`, `N/A`).
 
@@ -34,7 +34,7 @@ Match the repo's own convention: read `gh pr list --state merged --limit 5 --jso
 
 ## Step 3 — Body
 
-If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep its headings. Otherwise use:
+If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep its headings. Otherwise use:
 
 ```markdown
 ### [{TICKET}]({JIRA_SERVER}/browse/{TICKET})
@@ -60,12 +60,14 @@ If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL
 
 ## Step 4 — Create or update
 
-Write the body to a temp file so quoting and backticks survive the shell.
+Write the body to a temp file, and pass the title in single quotes (escaping any `'` in it), so backticks and `$(...)` in either are never run by the shell.
+
+When updating, keep any section of the existing body the new one doesn't cover (screenshots, reviewer notes).
 
 ```bash
 git push -u origin HEAD                 # only when the branch has no upstream or is ahead of it
-gh pr create --base {base} --title "{title}" --body-file {file}     # add --draft when asked
-gh pr edit --title "{title}" --body-file {file}                     # when a PR already exists
+gh pr create --base {base} --title '{title}' --body-file {file}     # add --draft when asked
+gh pr edit --base {base} --title '{title}' --body-file {file}       # when a PR already exists
 ```
 
 Reply with the PR URL and the title used.

@@ -38,7 +38,7 @@ Invoke skills namespaced, eg: `/ash-skills:standup`.
 |---|---|---|---|
 | [Claude Code](https://code.claude.com/docs/en/overview) | Required | All | Nothing runs |
 | [Obsidian](https://obsidian.md) and its [CLI](https://obsidian.md/help/cli) | Required | All except `create-pr` | Vault skills can't read or write notes. Turn on **Settings → General → Command line interface** |
-| git, with `user.name` set | Required | Work-log skills, `standup`, `create-pr` | Commits can't be matched to you |
+| git, with `user.name` set | Required | Work-log skills, `standup` | Commits can't be matched to you |
 | Atlassian MCP server (Jira, Confluence) | Required for Jira steps | Work-log skills, `standup`, `trace`, `setup`; optional in `create-pr` | A skill that needs ticket status says so and skips that step. No CLI or API token is used |
 | [GitHub CLI](https://cli.github.com) (`gh`), signed in | Optional | Work-log skills, `standup`, `trace`, `create-pr` | PR and review lookups are skipped; `create-pr` can't run |
 | Slack MCP server | Optional | `daily-work-wrap`, `weekly-work-wrap`, `standup`, `trace` | Slack signal is skipped |
