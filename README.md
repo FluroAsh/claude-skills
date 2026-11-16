@@ -29,6 +29,9 @@ If these skills already exist as loose files in `~/.claude/skills` or `~/.claude
 | `standup` | Standup prep. Read-only, chat output only. |
 | `create-pr` | Opens or updates a GitHub PR with a brief description |
 | `trace` | Traces an issue across Jira, GitHub, Confluence, Slack and notes, and checks it against your notes. Read-only |
+| `orchestrate` | Runs a large task with the main agent delegating to subagents. Invoke it yourself; it never triggers on its own |
+
+`orchestrate` ships two agents in `plugins/ash-skills/agents/`: `worker` (Opus) and `light` (Haiku).
 
 Invoke skills namespaced, eg: `/ash-skills:standup`.
 
@@ -37,7 +40,7 @@ Invoke skills namespaced, eg: `/ash-skills:standup`.
 | Name | Required | Used by | Without it |
 |---|---|---|---|
 | [Claude Code](https://code.claude.com/docs/en/overview) | Required | All | Nothing runs |
-| [Obsidian](https://obsidian.md) and its [CLI](https://obsidian.md/help/cli) | Required | All except `create-pr` | Vault skills can't read or write notes. Turn on **Settings → General → Command line interface** |
+| [Obsidian](https://obsidian.md) and its [CLI](https://obsidian.md/help/cli) | Required | All except `create-pr` and `orchestrate` | Vault skills can't read or write notes. Turn on **Settings → General → Command line interface** |
 | git, with `user.name` set | Required | Work-log skills, `standup` | Commits can't be matched to you |
 | Atlassian MCP server (Jira, Confluence) | Required for Jira steps | Work-log skills, `standup`, `trace`, `setup`; optional in `create-pr` | A skill that needs ticket status says so and skips that step. No CLI or API token is used |
 | [GitHub CLI](https://cli.github.com) (`gh`), signed in | Optional | Work-log skills, `standup`, `trace`, `create-pr` | PR and review lookups are skipped; `create-pr` can't run |
