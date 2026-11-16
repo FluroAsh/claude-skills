@@ -4,7 +4,7 @@ description: Quick standup prep — pulls today's tasks (Sunsama, if available),
 argument-hint: "[--after [date] [--keep-transcript]]"
 ---
 
-Pre-standup summary. Read-only unless `--after` — it reports what's already there. `--after` writes only the day's standup note and never touches Jira or git.
+Pre-standup summary. Read-only unless `--after` — it reports what's already there. `--after` writes only the day's standup note and never writes to Jira or git.
 
 With no flag, run Steps 1–8. With `--after`, skip them and follow `## --after` at the end.
 
@@ -15,6 +15,8 @@ Read `${CLAUDE_PLUGIN_ROOT}/reference/config.md` once at the start of the run: i
 - Vault: `${user_config.vault_path}` (`vault_path`; else Obsidian's vault registry). `{VAULT_NAME}` is its last path segment
 - Weekly logs: `${user_config.weekly_log_folder}/` (`weekly_log_folder`; else `10 - Meetings/Weekly Work Logs/{YEAR}/`, `{YEAR}` = four-digit year)
 - File naming: `${user_config.log_filename_format}` (`log_filename_format`; else inferred from existing logs, `MM-DD-YY.md` if none), dated by the week's Monday
+Used only by `--after`:
+
 - Standups: `${user_config.standup_folder}/` (`standup_folder`; else `10 - Meetings/<anything> Standup/` or `10 - Meetings/Standup/`), files `MM-DD-YY.md`
 - Standup template: `${user_config.standup_template}` (`standup_template`; else `Standup Template` in the templates folder)
 - Team context: `${user_config.team_context_file}` (`team_context_file`; else a vault-root note ending in `Team` or `Squad`, else the Jira roster per config.md)
@@ -177,12 +179,12 @@ Compacts pasted meeting notes into the day's standup note. Writes only that note
 
 ### Step A1 — Find the day's note
 
-`{standup_folder}/{date}.md`. If it doesn't exist, create it from the standup template via the Obsidian CLI. The template is frontmatter plus a paste hint; this mode writes the sections.
+`{standup_folder}/{date}.md`. If it doesn't exist, create it from the standup template via the Obsidian CLI (Write if the CLI fails). The template is frontmatter plus a paste hint; this mode writes the sections.
 
 ### Step A2 — Find the source
 
-1. The pasted meeting notes, from the note's only H1 (per compact-notes' Finding the source).
-2. Else a file path or text given in the message.
+1. Meeting notes or a file path given in the message.
+2. Else the notes pasted into the day's note, from its only H1 (per compact-notes' Finding the source).
 3. Else ask the user to paste the notes into the day's note, and stop. Write nothing (beyond a note created in Step A1).
 
 Never read a transcription tool's local cache.

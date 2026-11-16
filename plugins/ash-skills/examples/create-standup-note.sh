@@ -23,5 +23,6 @@ note="$folder/$(fmt %m-%d-%y).md"
 [ -e "$note" ] && exit 0
 
 mkdir -p "$folder"
-cp "$template" "$note"
+# noclobber makes the create atomic, so a note made between the check and here is never overwritten.
+(set -C; cat "$template" > "$note") 2>/dev/null || exit 0
 echo "created $note"
