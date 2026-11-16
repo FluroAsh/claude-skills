@@ -285,7 +285,7 @@ Try next week
 
 ## Guidelines
 
-- **Obsidian CLI first** for all vault reads/writes (`obsidian vault="{VAULT_NAME}" ...`) — fall back to Read/Edit only if CLI fails
+- **Obsidian CLI first** for all vault reads/writes (`obsidian vault='{VAULT_NAME}' ...`) — fall back to Read/Edit only if CLI fails
 - **Do not fabricate detail** — if daily entries don't support a bullet, don't invent one
 - **No ceremony bullets** — standup, planning, refinement, retro and similar recurring ceremonies are too standard to justify a line in the daily entries or Achievements; only call out a meeting if it was a notable one-off
 - **Consolidate, don't transcribe** — whether drafting daily entries from git/Sunsama or Achievements in Step 5, group related commits/feature-branch changes into a small number of high-level bullets describing the outcome, not a line per commit. Aim for ~3 dot points per ticket/piece of work
