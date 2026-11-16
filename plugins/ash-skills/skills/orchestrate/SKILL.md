@@ -24,7 +24,7 @@ You run on whatever model the session is using; this skill never changes it. Sub
 - `ash-skills:worker` (Opus) — the default. Investigation, implementation, debugging, anything where a wrong call costs a rework.
 - `ash-skills:light` (Haiku) — only work that is fully specified and needs no judgement: rewording prose, descriptions, comments, tags and frontmatter, mechanical renames, locating a named file or symbol.
 
-When unsure which fits, use `worker`. Review of the finished work is yours: read the diff, not the files.
+When unsure which fits, use `worker`. If an agent fails to start because its model isn't available on the account, rerun that brief on a general-purpose subagent with the session model, and say so in the report. Review of the finished work is yours: read the diff, not the files.
 
 ## Step 1 — Plan
 
@@ -54,7 +54,9 @@ A new agent re-reads everything from cold. Before spawning, check whether an age
 
 ## Step 4 — Verify and integrate
 
-Trust the check, not the report. For each worker result, read the diff (`git diff --stat`, then the hunks that matter) and the check's output. If it's wrong, send the correction back to the same worker. Two failed corrections on one piece means the brief or the split is wrong: take that piece yourself.
+Trust the check, not the report. For each worker result, read the diff (`git status --short` for new files, `git diff --stat`, then the hunks that matter) and the check's output. If it's wrong, send the correction back to the same worker. Two failed corrections on one piece means the brief or the split is wrong: take that piece yourself.
+
+Once every piece is in, run the checks once more on the combined result: pieces that pass alone can still break together.
 
 ## Step 5 — Report
 
