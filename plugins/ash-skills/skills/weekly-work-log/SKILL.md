@@ -57,7 +57,7 @@ If it already exists, open it and work with the existing content.
 
 ## Step 5 — Fill out Sprint Goals
 
-Find the active sprint from the sprint field on the user's sprint tickets (JQL search: `sprint in openSprints() AND assignee = currentUser()`): its id, name, end date, `goal` and board id (`{BOARD_ID}`). If the user's tickets sit in more than one active sprint, ask which. The `goal` field is free text grouped by theme (e.g. performance, onboarding, reporting), not a ticket list. If no goal comes back, leave Sprint Goals as the template has it for the user to fill, say so, and continue with Step 6.
+Find the active sprint from the sprint field on the user's sprint tickets (JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = {PROJECT_KEY}`): its id, name, end date, `goal` and board id (`{BOARD_ID}`). If the user's tickets sit in more than one active sprint, ask which. The `goal` field is free text grouped by theme (e.g. performance, onboarding, reporting), not a ticket list. If no goal comes back, empty the Sprint Goals section (removing any goals carried over from last week) for the user to fill, say so, and continue with Step 6.
 
 Replace the sprint goals heading in the current week's log with:
 

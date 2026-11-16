@@ -37,7 +37,7 @@ Resolved at runtime, not plugin config:
 
 Query the current sprint directly for every ticket assigned to the user that isn't done, so nothing falls through the cracks that Sunsama/the vault log didn't happen to mention:
 
-JQL search: `sprint in openSprints() AND assignee = currentUser()`
+JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = {PROJECT_KEY}`
 
 - Filter to tickets whose status category isn't `done` (this also excludes closed statuses such as `Discarded`).
 - Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 7 that it came from the board, not from tracked work.

@@ -30,7 +30,7 @@ One table, every key in `schema` order: key, value, source. Mark anything missin
 
 ## Step 4 — Ask what's left
 
-Ask one question at a time, only about values that are missing, ambiguous, or a Tier 1 choice. Offer picks where there's a list (vaults, folders, Sunsama channels). Every Tier 1 question can be skipped; skipped means blank. Ask nothing about a value resolved unambiguously.
+Ask one question at a time, only about values that are missing, ambiguous, or a Tier 1 choice. Offer picks where there's a list (vaults, folders, Sunsama channels). Every Tier 1 question can be skipped; a skipped key is saved as `""`, so `--check` treats it as answered. Ask nothing about a value resolved unambiguously.
 
 For a missing folder or template, offer to leave it blank (the skills then ask when they need it) or take a path from the user.
 
@@ -53,7 +53,7 @@ On an error, show it and stop. Don't retry with a different payload.
 
 ## Step 7 — Finish
 
-Tell the user: restart Claude Code for the saved values to apply. Until then, the other skills keep working through discovery.
+Tell the user: restart Claude Code for the saved values to apply. Until then, other skills in this session still see the old values (or discovery, where a key was unset).
 
 ## Check mode
 
