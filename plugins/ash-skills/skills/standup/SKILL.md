@@ -5,21 +5,21 @@ description: Quick standup prep — pulls today's tasks (Sunsama, if available),
 
 Pre-standup summary. Read-only — this skill never writes to Obsidian, Jira, or git. It reports what's already there.
 
-Plugin config values below come from the user config; a blank value means "not configured".
-
 ## Configuration
 
-- Vault: `${user_config.vault_name}`, rooted at `${user_config.vault_path}`
-- Weekly logs: `${user_config.weekly_log_folder}/` (`{YEAR}` = four-digit year)
-- File naming: `${user_config.log_filename_format}`, dated by the week's Monday
+Read `${CLAUDE_PLUGIN_ROOT}/reference/config.md` once at the start of the run: it gives the resolution order (stored value, else convention, else ask once and suggest `/ash-skills:setup`). Paths are vault-relative.
+
+- Vault: `${user_config.vault_path}` (`vault_path`; else Obsidian's vault registry). `{VAULT_NAME}` is its last path segment
+- Weekly logs: `${user_config.weekly_log_folder}/` (`weekly_log_folder`; else `10 - Meetings/Weekly Work Logs/{YEAR}/`, `{YEAR}` = four-digit year)
+- File naming: `${user_config.log_filename_format}` (`log_filename_format`; else inferred from existing logs, `MM-DD-YY.md` if none), dated by the week's Monday
 
 ## Environment
 
-Resolved from the shell, not plugin config:
+Resolved at runtime, not plugin config:
 
 - Author: `git config user.name`, run inside the repo
-- Jira: the `jira` CLI's config (`~/.config/.jira/.config.yml`) supplies `{JIRA_SERVER}` (`server`), `{PROJECT_KEY}` (`project.key`) and `{BOARD_ID}` (`board.id`); `jira me` is the signed-in user; REST calls use `$JIRA_API_TOKEN`
-- Ticket status: read from Jira at runtime (`jira issue view {KEY} --raw`, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is *finished* when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
+- Jira: the Atlassian MCP (see config.md), for get issue (e.g. `getJiraIssue`) and JQL search. `{JIRA_SERVER}` is `https://` plus `${user_config.jira_site}` and `{PROJECT_KEY}` is `${user_config.jira_project}`; if unset, take them from the MCP. If the MCP isn't connected, say so in Step 8 and skip the Jira steps
+- Ticket status: read from Jira at runtime (get issue, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is *finished* when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
 - Repos: the repo in the current directory; for another repo, look beside it or ask where it lives
 - GitHub: `gh`, signed in; skip PR and review lookups if it isn't available. The login is `gh api user --jq .login`
 - Slack: used only if its MCP tools are available (`slack_search_public_and_private`); the user's own ID comes from that tool's description
@@ -37,9 +37,9 @@ Resolved from the shell, not plugin config:
 
 Query the current sprint directly for every ticket assigned to the user that isn't done, so nothing falls through the cracks that Sunsama/the vault log didn't happen to mention:
 
-`jira sprint list --current --plain --columns KEY,SUMMARY,STATUS,ASSIGNEE --paginate 100`
+JQL search: `sprint in openSprints() AND assignee = currentUser()`
 
-- Filter to rows where assignee is the user and status category isn't `done` (this also excludes closed statuses such as `Discarded`).
+- Filter to tickets whose status category isn't `done` (this also excludes closed statuses such as `Discarded`).
 - Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 7 that it came from the board, not from tracked work.
 - This is the source of truth for "what's actively assigned to me" — Sunsama/the log tell you what was _worked on_, this tells you what _should_ be walked even if untouched.
 
@@ -79,13 +79,13 @@ Check in this priority order, stopping at the first that gives a clear answer pe
 1. Obsidian notes (today's/this week's log) for an explicit blocker mention
 2. Sunsama task notes for an explicit blocker mention (unlikely, but check)
 3. Slack threads from Step 2c, or a PR from Step 2b waiting on review / with changes requested
-4. Jira: `jira issue view {KEY} --plain` — check status (e.g. `Blocked`) or a flagged indicator
+4. Jira: get issue (e.g. `getJiraIssue`) — check status (e.g. `Blocked`) or a flagged indicator
 5. Infer from whatever else is available (e.g. a task sitting untouched for days with no progress signal)
 6. If none of the above give a signal, default to **not blocked** — do not assume a blocker exists without evidence
 
 Track which of these ticks fired for each ticket — this feeds the assumptions footnote in Step 8.
 
-For any ticket that's `Blocked` (whether it's getting a full entry in Step 5 or landing in the Step 5a "Nothing to update" list), don't stop at the status flag — pull the actual reason: `jira issue view {KEY} --plain --comments 5` and read the most recent comment(s) for what it's waiting on (e.g. "waiting on multi-site testing", "dependency on multisite code targeting 23 July"). Prefer the latest comment over the ticket description, since the description is often stale relative to why it's blocked _now_.
+For any ticket that's `Blocked` (whether it's getting a full entry in Step 5 or landing in the Step 5a "Nothing to update" list), don't stop at the status flag — pull the actual reason: get the issue with its comments and read the most recent comment(s) for what it's waiting on (e.g. "waiting on multi-site testing", "dependency on multisite code targeting 23 July"). Prefer the latest comment over the ticket description, since the description is often stale relative to why it's blocked _now_.
 
 ## Step 5 — Draft the standup update
 

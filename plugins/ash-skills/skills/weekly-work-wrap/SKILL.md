@@ -5,23 +5,23 @@ description: Review and wrap up the current week's work log — draft achievemen
 
 End-of-week wrap-up for the weekly work log in the user's Obsidian vault.
 
-Plugin config values below come from the user config; a blank value means "not configured".
-
 ## Configuration
 
-- Vault: `${user_config.vault_name}`, rooted at `${user_config.vault_path}`
-- Weekly logs: `${user_config.weekly_log_folder}/` (`{YEAR}` = four-digit year)
-- File naming: `${user_config.log_filename_format}`, dated by the week's Monday
-- Template note: `${user_config.weekly_log_template}`
-- Tech Lead Review: company `${user_config.company_name}`, context notes `${user_config.review_context_files}` — no context notes means skip the review
+Read `${CLAUDE_PLUGIN_ROOT}/reference/config.md` once at the start of the run: it gives the resolution order (stored value, else convention, else ask once and suggest `/ash-skills:setup`). Paths are vault-relative.
+
+- Vault: `${user_config.vault_path}` (`vault_path`; else Obsidian's vault registry). `{VAULT_NAME}` is its last path segment
+- Weekly logs: `${user_config.weekly_log_folder}/` (`weekly_log_folder`; else `10 - Meetings/Weekly Work Logs/{YEAR}/`, `{YEAR}` = four-digit year)
+- File naming: `${user_config.log_filename_format}` (`log_filename_format`; else inferred from existing logs, `MM-DD-YY.md` if none), dated by the week's Monday
+- Template note: `${user_config.weekly_log_template}` (`weekly_log_template`; else `Weekly Work Log` in the templates folder)
+- Tech Lead Review: company `${user_config.company_name}` (`company_name`; else proposed from the Jira site subdomain), context notes `${user_config.review_context_files}` (`review_context_files`, comma-separated) — no context notes means skip the review
 
 ## Environment
 
-Resolved from the shell, not plugin config:
+Resolved at runtime, not plugin config:
 
 - Author: `git config user.name`, run inside the repo
-- Jira: the `jira` CLI's config (`~/.config/.jira/.config.yml`) supplies `{JIRA_SERVER}` (`server`), `{PROJECT_KEY}` (`project.key`) and `{BOARD_ID}` (`board.id`); `jira me` is the signed-in user; REST calls use `$JIRA_API_TOKEN`
-- Ticket status: read from Jira at runtime (`jira issue view {KEY} --raw`, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is _finished_ when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
+- Jira: the Atlassian MCP (see config.md), for get issue (e.g. `getJiraIssue`) and JQL search. `{JIRA_SERVER}` is `https://` plus `${user_config.jira_site}` and `{PROJECT_KEY}` is `${user_config.jira_project}`; if unset, take them from the MCP. If the MCP isn't connected, say so and skip the Jira steps
+- Ticket status: read from Jira at runtime (get issue, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is _finished_ when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
 - Repos: the repo in the current directory; for another repo, look beside it or ask where it lives
 - GitHub: `gh`, signed in; skip PR lookups if it isn't available
 - Sunsama: used only if its MCP tools are available
@@ -61,7 +61,7 @@ Process days **one at a time, in order (Monday → Friday)** — do not batch-fe
 
 ## Step 3 — Update ticket statuses from Jira
 
-For each ticket in the **This Weeks Tickets** table, check its current status in Jira using `jira issue view {KEY} --plain`.
+For each ticket in the **This Weeks Tickets** table, check its current status in Jira using get issue (e.g. `getJiraIssue`).
 If a ticket's status in the log differs from Jira, update the table to match Jira.
 Report any status changes made.
 
@@ -250,7 +250,7 @@ Use `✗` for any section that was skipped or left empty. Brain Dump and AI-free
 
 ### Tech Lead Review
 
-Skip this section entirely if no review context notes are configured. A short, genuinely-invested reflection on the week — written in the voice of a tech lead at `${user_config.company_name}` reviewing the user's week. The bar for what counts as impressive or as a gap should be calibrated to a senior IC at a strong product company. Place this last, after Sections Completed.
+Skip this section entirely if no review context notes are configured. A short, genuinely-invested reflection on the week — written in the voice of a tech lead at the company in the configuration above reviewing the user's week. The bar for what counts as impressive or as a gap should be calibrated to a senior IC at a strong product company. Place this last, after Sections Completed.
 
 Ground it in the context notes listed in the configuration above (operating principles, focus areas, standing growth themes). Don't re-read whole folders every time — those notes are the steady-state context; only go deeper if the week's work or conversation surfaced something more specific.
 
@@ -285,7 +285,7 @@ Try next week
 
 ## Guidelines
 
-- **Obsidian CLI first** for all vault reads/writes (`obsidian vault="${user_config.vault_name}" ...`) — fall back to Read/Edit only if CLI fails
+- **Obsidian CLI first** for all vault reads/writes (`obsidian vault="{VAULT_NAME}" ...`) — fall back to Read/Edit only if CLI fails
 - **Do not fabricate detail** — if daily entries don't support a bullet, don't invent one
 - **No ceremony bullets** — standup, planning, refinement, retro and similar recurring ceremonies are too standard to justify a line in the daily entries or Achievements; only call out a meeting if it was a notable one-off
 - **Consolidate, don't transcribe** — whether drafting daily entries from git/Sunsama or Achievements in Step 5, group related commits/feature-branch changes into a small number of high-level bullets describing the outcome, not a line per commit. Aim for ~3 dot points per ticket/piece of work
@@ -305,5 +305,5 @@ Try next week
 - **Exclude pure-toggle tickets** — when pulling candidate tickets for Sprint Goals/Goals/the ticket table, drop any ticket whose Jira issue type is "Toggle" (it only tracks a feature-toggle on/off state, not delivery work) unless the user explicitly asks for it
 - **Terminology — Goals vs Sprint Goals vs Action Items (do not conflate these)**:
   - **Goals for this week** = the north-star priority for the week — where most focus should go. Usually 1–2 items, not a sprint-wide list.
-  - **Sprint Goals** = the goal lines from the active sprint's Jira goal field (board `{BOARD_ID}`) that involve the user's work, each linked to the relevant ticket(s), excluding anything already `Done`. The goal field is themed free text, not a ticket list — confirm which lines apply via the sprint tickets assigned to the user, and ask if a line is ambiguous. Don't assume a squad-wide goal is the user's individual work.
+  - **Sprint Goals** = the goal lines from the active sprint's Jira goal field (the sprint field on the user's sprint tickets) that involve the user's work, each linked to the relevant ticket(s), excluding anything already `Done`. The goal field is themed free text, not a ticket list — confirm which lines apply via the sprint tickets assigned to the user, and ask if a line is ambiguous. Don't assume a squad-wide goal is the user's individual work.
   - **Action Items** = near-term, operational things to close out or progress this week (e.g. "follow {PROJECT_KEY}-XXXX through to Done"). These are not the same as Goals or Sprint Goals, and should not include items that are someone else's responsibility to surface (e.g. a ticket that will come back to the user once a PO/another party resolves something — ask before adding this kind of item).
