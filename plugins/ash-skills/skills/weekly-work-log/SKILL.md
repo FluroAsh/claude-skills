@@ -5,21 +5,21 @@ description: Set up or update the weekly work log in the user's Obsidian vault.
 
 Set up or update the weekly work log in the user's Obsidian vault.
 
-Plugin config values below come from the user config; a blank value means "not configured".
-
 ## Configuration
 
-- Vault: `${user_config.vault_name}`, rooted at `${user_config.vault_path}`
-- Weekly logs: `${user_config.weekly_log_folder}/` (`{YEAR}` = four-digit year)
-- File naming: `${user_config.log_filename_format}`, dated by the week's Monday
-- Template note: `${user_config.weekly_log_template}`
+Read `${CLAUDE_PLUGIN_ROOT}/reference/config.md` once at the start of the run: it gives the resolution order (stored value, else convention, else ask once and suggest `/ash-skills:setup`). Paths are vault-relative.
+
+- Vault: `${user_config.vault_path}` (`vault_path`; else Obsidian's vault registry). `{VAULT_NAME}` is its last path segment
+- Weekly logs: `${user_config.weekly_log_folder}/` (`weekly_log_folder`; else `10 - Meetings/Weekly Work Logs/{YEAR}/`, `{YEAR}` = four-digit year)
+- File naming: `${user_config.log_filename_format}` (`log_filename_format`; else inferred from existing logs, `MM-DD-YY.md` if none), dated by the week's Monday
+- Template note: `${user_config.weekly_log_template}` (`weekly_log_template`; else `Weekly Work Log` in the templates folder)
 
 ## Environment
 
-Resolved from the shell, not plugin config:
+Resolved at runtime, not plugin config:
 
-- Jira: the `jira` CLI's config (`~/.config/.jira/.config.yml`) supplies `{JIRA_SERVER}` (`server`), `{PROJECT_KEY}` (`project.key`) and `{BOARD_ID}` (`board.id`); `jira me` is the signed-in user; REST calls use `$JIRA_API_TOKEN`
-- Ticket status: read from Jira at runtime (`jira issue view {KEY} --raw`, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is *finished* when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
+- Jira: the Atlassian MCP (see config.md). `{JIRA_SERVER}` is `https://` plus `${user_config.jira_site}` and `{PROJECT_KEY}` is `${user_config.jira_project}`; if unset, take them from the MCP. If the MCP isn't connected, say so and skip the Jira steps
+- Ticket status: read from Jira at runtime (get issue, e.g. `getJiraIssue`, `fields.status.statusCategory.key`: `new`, `indeterminate` or `done`). A ticket is *finished* when its category is `done`, or its status says only release/deploy remains (e.g. "Pending Deploy", "Ready for Release")
 
 ## Step 1 — Identify the relevant files
 
@@ -57,7 +57,7 @@ If it already exists, open it and work with the existing content.
 
 ## Step 5 — Fill out Sprint Goals
 
-Fetch the active sprints on the board: `curl -s -u "$(jira me):$JIRA_API_TOKEN" "{JIRA_SERVER}/rest/agile/1.0/board/{BOARD_ID}/sprint?state=active"`. The board may also list other teams' sprints — use the active sprint that contains tickets assigned to the user, and ask if it's ambiguous. Its `goal` field is free text grouped by theme (e.g. performance, onboarding, reporting), not a ticket list.
+Find the active sprint from the sprint field on the user's sprint tickets (JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = {PROJECT_KEY}`): its id, name, end date, `goal` and board id (`{BOARD_ID}`). If the user's tickets sit in more than one active sprint, ask which. The `goal` field is free text grouped by theme (e.g. performance, onboarding, reporting), not a ticket list. If no goal comes back, empty the Sprint Goals section (removing any goals carried over from last week) for the user to fill, say so, and continue with Step 6.
 
 Replace the sprint goals heading in the current week's log with:
 
@@ -65,7 +65,7 @@ Replace the sprint goals heading in the current week's log with:
 #### [{Sprint name} Goals - ends {D Mon}]({JIRA_SERVER}/jira/software/c/projects/{PROJECT_KEY}/boards/{BOARD_ID})
 ```
 
-Add a `[ ]` item only for goal lines that involve the user's work — check the sprint's tickets assigned to the user (`jira sprint list <sprint-id> --plain --columns KEY,SUMMARY,STATUS,ASSIGNEE`) and link the relevant ticket(s) on each item. Ask the user if it's unclear which goal lines apply. If a goal was already completed in a prior week's log, mark it `[x]`.
+Add a `[ ]` item only for goal lines that involve the user's work — check the sprint's tickets assigned to the user (JQL search: `sprint = {sprint-id} AND assignee = currentUser()`) and link the relevant ticket(s) on each item. Ask the user if it's unclear which goal lines apply. If a goal was already completed in a prior week's log, mark it `[x]`.
 
 ## Step 6 — Populate Goals for this week
 
@@ -92,5 +92,5 @@ Write the updated current week's file. Then summarise what was done:
 
 - Whether the previous week needed any fixes and what was filled in
 - Which tickets were carried over
-- Which sprint was matched and what the goals are
+- Which sprint was matched and what the goals are, or that Sprint Goals was left for the user because no goal came back
 - Which action items were brought forward
