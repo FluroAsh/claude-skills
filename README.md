@@ -26,13 +26,15 @@ If these skills already exist as loose files in `~/.claude/skills` or `~/.claude
 | `weekly-work-log` | Audits last week's log, then sets up this week's |
 | `weekly-work-wrap` | End-of-week wrap-up of the current log, with an optional Tech Lead Review |
 | `daily-work-wrap` | Single-day catch-up for days you forgot to log |
-| `standup` | Standup prep. Read-only, chat output only. |
+| `standup` | Standup prep. Read-only, chat output only. `--after` compacts pasted meeting notes into the day's standup note |
 | `compact-notes` | Condenses a note, one section of it, or pasted text, keeping decisions, owners and open questions. Works on its own or loaded by other skills |
 | `create-pr` | Opens or updates a GitHub PR with a brief description |
 | `trace` | Traces an issue across Jira, GitHub, Confluence, Slack and notes, and checks it against your notes. Read-only |
 | `orchestrate` | Runs a large task with the main agent delegating to subagents. Invoke it yourself; it never triggers on its own |
 
 `orchestrate` ships two agents in `plugins/ash-skills/agents/`: `worker` (Opus) and `light` (Haiku).
+
+An optional example for creating the day's standup note on a schedule is in [`plugins/ash-skills/examples/`](plugins/ash-skills/examples/).
 
 Invoke skills namespaced, eg: `/ash-skills:standup`.
 
