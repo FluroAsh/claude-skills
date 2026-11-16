@@ -1,9 +1,12 @@
 ---
 name: standup
-description: Quick standup prep — pulls today's tasks (Sunsama, if available), today's weekly log entry, git, GitHub reviews, Slack and Jira to produce a Today + Blockers summary. Chat output only, nothing written to the vault.
+description: Quick standup prep — pulls today's tasks (Sunsama, if available), today's weekly log entry, git, GitHub reviews, Slack and Jira to produce a Today + Blockers summary in chat. With `--after`, compacts pasted meeting notes into that day's standup note.
+argument-hint: "[--after [date] [--keep-transcript]]"
 ---
 
-Pre-standup summary. Read-only — this skill never writes to Obsidian, Jira, or git. It reports what's already there.
+Pre-standup summary. Read-only unless `--after` — it reports what's already there. `--after` writes only the day's standup note and never writes to Jira or git.
+
+With no flag, run Steps 1–8. With `--after`, skip them and follow `## --after` at the end.
 
 ## Configuration
 
@@ -12,6 +15,11 @@ Read `${CLAUDE_PLUGIN_ROOT}/reference/config.md` once at the start of the run: i
 - Vault: `${user_config.vault_path}` (`vault_path`; else Obsidian's vault registry). `{VAULT_NAME}` is its last path segment
 - Weekly logs: `${user_config.weekly_log_folder}/` (`weekly_log_folder`; else `10 - Meetings/Weekly Work Logs/{YEAR}/`, `{YEAR}` = four-digit year)
 - File naming: `${user_config.log_filename_format}` (`log_filename_format`; else inferred from existing logs, `MM-DD-YY.md` if none), dated by the week's Monday
+Used only by `--after`:
+
+- Standups: `${user_config.standup_folder}/` (`standup_folder`; else `10 - Meetings/<anything> Standup/` or `10 - Meetings/Standup/`), files `MM-DD-YY.md`
+- Standup template: `${user_config.standup_template}` (`standup_template`; else `Standup Template` in the templates folder)
+- Team context: `${user_config.team_context_file}` (`team_context_file`; else a vault-root note ending in `Team` or `Squad`, else the Jira roster per config.md)
 
 ## Environment
 
@@ -157,7 +165,65 @@ If nothing was inferred, omit this section entirely — including the `---` sepa
 
 ## Guidelines
 
-- **Chat output only** — never write to the Obsidian vault, never update Jira, never touch git or GitHub (read-only `gh`/`git log`/Slack search only). This is strictly a read/report skill.
+- **Chat output only** (no flag) — never write to the Obsidian vault, never update Jira, never touch git or GitHub (read-only `gh`/`git log`/Slack search only). This is strictly a read/report skill.
 - **Do not fabricate** — if a ticket has no commits and no notes beyond a generic title, say so plainly rather than inventing detail.
 - **No ceremony bullets** — don't list standup/planning/refinement/retro as "today" items.
 - **Natural first, links second** — the spoken update should read like a person talking; a markdown link on first mention of a ticket is fine, but don't let formatting override the natural flow of the sentence.
+
+## --after
+
+Compacts pasted meeting notes into the day's standup note. Writes only that note; never Jira or git.
+
+- `[date]`: `MM-DD-YY` (e.g. `11-12-26`); default today. `{date}` below means this date
+- `--keep-transcript`: keep the paste under `## Original notes` at the bottom (compact-notes' `--keep-original`)
+
+### Step A1 — Find the day's note
+
+`{standup_folder}/{date}.md`. If it doesn't exist, create it from the standup template via the Obsidian CLI (Write if the CLI fails). The template is frontmatter plus a paste hint; this mode writes the sections.
+
+### Step A2 — Find the source
+
+1. Meeting notes or a file path given in the message.
+2. Else the notes pasted into the day's note, from its only H1 (per compact-notes' Finding the source).
+3. Else ask the user to paste the notes into the day's note, and stop. Write nothing (beyond a note created in Step A1).
+
+Never read a transcription tool's local cache.
+
+### Step A3 — Compact
+
+Load the `compact-notes` skill with the Skill tool and apply it to the source, with the standup shape below as its instructions (`--keep-original` if `--keep-transcript`). Its draft comes back into this run: compact-notes asks nothing and writes nothing.
+
+### Step A4 — Confirm and write
+
+Show the draft in the terminal with line counts before and after. Ask once to write, saying the paste will be removed (or kept under `## Original notes` with `--keep-transcript`). Write only on a yes, then apply compact-notes' write rules (frontmatter `updated` and `compacted`, paste hint removed). This is the only confirmation the user sees.
+
+### Step A5 — Verify and report
+
+Check the written note: one H1, no paste hint, a blank line after every heading, no double blank lines. Fix and re-check if any fail. Report the path and `obsidian://open?vault={VAULT_NAME}&file={path, URL-encoded, no .md}`.
+
+### Standup shape
+
+- **First section: the user's own team or discipline**, one bullet per person, by name.
+  - Team note present: name the section after the user's group there, in the order the note sets.
+  - No team note: name it after the user's ticket-summary prefix (e.g. `FE`) when one is found, else `Me`. No fixed order; never claim one the data doesn't support.
+- **Then everything else** under `###` headings by topic, ending with a team-process group (board counts, scheduling).
+- **Actions and blockers stay inline** under their person or topic, each with an owner or `(?)`. No separate Actions or Blockers sections.
+- Names come from team context (config.md); speech-to-text mangles are fixed from it, unknown names keep `(?)`.
+
+```markdown
+# Standup
+
+## FE
+
+- **Alex** — PROJ-123 in review, waiting on a second approver
+- **Sam** — Picking up PROJ-124 next; blocked on API docs (owner: Jordan)
+
+### Release timing
+
+- Release moved to Thursday; Jordan to confirm with QA (?)
+
+### Team process
+
+- Board: 4 in progress, 2 in review
+- Retro moved to Friday
+```
