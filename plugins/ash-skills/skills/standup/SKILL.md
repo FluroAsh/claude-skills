@@ -101,10 +101,12 @@ Output has two sections: **Standup Update** (what the user is actually giving an
 
 ### Standup Update
 
-This is spoken out loud in a standup, not read as a report — write it like the user is actually talking, first person, short sentences. Not metadata tags, but not one merged paragraph either.
+This is the user reporting to their manager and team, out loud. It should give them the context to understand what the user is working on: what the work is in plain terms, where it's at, what happens next, and anything the user needs from someone. Write it as the user talking, first person, in natural sentences. Ticket keys and PR numbers are fine inline; status fields, metadata tags and shorthand are not.
 
 - A ticket belongs here if there's genuine news: it was worked on today, its status changed, its PR was reviewed/approved, a Slack thread moved it, or there's a new/updated blocker worth surfacing.
 - **Keep it compact.** Keep what the team needs: status/outcome, PR state, blockers and who it's waiting on, handoffs or asks of others. Cut process narration ("spent the morning", which subtasks are open) unless it explains a blocker.
+- **Plain meaning, not Jira status.** Say what a status means ("ready to go out with the next release"), not the field value ("at Ready For Release").
+- **What's next**, only when a source shows it: a stacked PR, a ticket comment, the log, a Slack thread. Never guess a next step or a date.
 - Fold continuity from yesterday (Step 3), blockers and any related PR (Step 2a) into the ticket's own update. No "no blockers" filler when there is none.
 - Don't fabricate detail beyond what the sources support — if a ticket has nothing beyond a generic title, say so plainly (e.g. "not much to report yet here, still early").
 - No ceremony entries (standup, planning, refinement, retro).
@@ -116,6 +118,7 @@ This is spoken out loud in a standup, not read as a report — write it like the
 - **Sub-groups:** within an epic, group by the current weekly log's Sprint Goals when a goal clearly names the ticket or its area. No match: no sub-group, tickets sit directly under the epic.
 - **No epic:** group under a short topic heading (e.g. `◆ SERVICES PAGE POLISH`) with no key. Never invent an epic or present a topic as one.
 - **Follow-ups:** a ticket split out of another, or whose PR is stacked on another's, nests under its parent ticket.
+- **Combined updates:** when tickets in the same group share one story (one depends on the other, or they're in the same state for the same reason) and a sentence naturally covers them, give them one update under the group heading instead of a header each. Unrelated tickets that only share an epic keep their own headers; a forced paragraph reads worse than a list.
 - **Code reviews** of others' PRs: a final `◆ CODE REVIEWS` group, one line per PR author or one combined line. Omit when there were none.
 - Order groups by the epic with the most news first; order tickets within a group by how they'd be talked through (dependencies before dependents).
 
@@ -127,8 +130,9 @@ The tree is plain markdown, not a code block, so links stay clickable. Markdown 
 - **End every tree line with two trailing spaces** so its line break survives.
 - Heavy connectors: `┃` guide, `┣━` for a child with siblings below, `┗━` for the last child (`┣━━`/`┗━━` for sub-groups).
 - **Ticket as header:** `┣━ **[KEY]({JIRA_SERVER}/browse/KEY) — Title**`, with the spoken update on the lines below, indented one level under it.
-- **One point per line.** Separate points (review state, handoff, follow-up, open question) with a blank connector line: the guide characters only, no text. Under a last child with no guide left, use a line of non-breaking spaces.
-- **Blocked:** append ` ⛔` to the ticket header. It is the only emoji in the output; status otherwise lives in the words.
+- **Combined update header:** the group heading carries the keys instead, `┣━━ **Checkout** · [KEY-1](…) · [KEY-2](…)`, with the update indented under it.
+- **One thought per point**, one or two connected sentences; wrap long sentences across lines under the same guide. Separate distinct thoughts (where it's at, a handoff, an open question) with a blank connector line: the guide characters only, no text. Under a last child with no guide left, use a line of non-breaking spaces. Never split one thought across points.
+- **Blocked:** append ` ⛔` to the ticket or combined-group header. It is the only emoji in the output; status otherwise lives in the words.
 - Keep each update line under ~80 characters so wrapping doesn't break the guide.
 
 ### Step 5a — "Nothing to update" section
@@ -157,22 +161,18 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 **◆ PAYMENTS REVAMP** · [PROJ-100]({JIRA_SERVER}/browse/PROJ-100)⏎
 ┃⏎
-┣━━ **Checkout**⏎
-┃␣␣␣┃⏎
-┃␣␣␣┗━ **[PROJ-101]({JIRA_SERVER}/browse/PROJ-101) — Show provider details on order confirmation**⏎
-┃␣␣␣␣␣␣␣┃␣␣PR #120 got approved by Jordan and QA tested it.⏎
-┃␣␣␣␣␣␣␣┃⏎
-┃␣␣␣␣␣␣␣┃␣␣It's at Ready For Release now.⏎
-┃␣␣␣␣␣␣␣┃⏎
-┃␣␣␣␣␣␣␣┗━ **[PROJ-102]({JIRA_SERVER}/browse/PROJ-102) — Report provider in checkout analytics**⏎
-┃␣␣␣␣␣␣␣␣␣␣␣␣Draft PR #125 is stacked on #120, so it lands after that merges.⏎
+┣━━ **Checkout** · [PROJ-101]({JIRA_SERVER}/browse/PROJ-101) · [PROJ-102]({JIRA_SERVER}/browse/PROJ-102)⏎
+┃␣␣␣␣␣Provider details on the order confirmation are approved and through QA,⏎
+┃␣␣␣␣␣so they're ready to go out with the next release.⏎
+┃␣␣␣␣␣⏎
+┃␣␣␣␣␣The analytics follow-up (#125) is stacked on that PR, so it lands⏎
+┃␣␣␣␣␣straight after it merges.⏎
 ┃⏎
 ┗━━ **Labels**⏎
 ␣␣␣␣┃⏎
 ␣␣␣␣┗━ **[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** ⛔⏎
-␣␣␣␣␣␣␣␣␣The mocks are done.⏎
-␣␣␣␣␣␣␣␣␣⏎
-␣␣␣␣␣␣␣␣␣It's blocked on my test-setup fix PR (#123), which I'm still working through.⏎
+␣␣␣␣␣␣␣␣␣The mocks are done, but I can't finish the labels until my test-setup⏎
+␣␣␣␣␣␣␣␣␣fix (#123) is merged. I'm still working through the failing tests there.⏎
 
 **◆ CODE REVIEWS**⏎
 ┃⏎
@@ -190,7 +190,7 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 ---
 
-**Reference note:** epic confirmed from Jira for PROJ-101–104; Checkout and Labels are sprint-goal groups from the weekly log. PR #123's last CI run passed, so the test failures came from you, not CI.
+**Reference note:** epic confirmed from Jira for PROJ-101–104; Checkout and Labels are sprint-goal groups from the weekly log, and PROJ-101/102 share one update. PR #123's last CI run passed, so the test failures came from you, not CI.
 ```
 
 This is a shape reference, not literal content to reuse — ticket keys, groups, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
