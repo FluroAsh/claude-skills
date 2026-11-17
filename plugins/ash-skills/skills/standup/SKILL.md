@@ -128,10 +128,11 @@ The tree is plain markdown, not a code block, so links stay clickable. Markdown 
 
 - **Indent with non-breaking spaces (U+00A0), never ordinary spaces.** This applies to every leading or alignment space in the tree.
 - **End every tree line with two trailing spaces** so its line break survives.
+- **No empty or space-only line anywhere inside a tree.** Either one starts a new paragraph, and renderers (the Claude Code terminal among them) strip the indent from a paragraph's start. Every line, separators included, has a visible connector after its indent.
 - Heavy connectors: `┃` guide, `┣━` for a child with siblings below, `┗━` for the last child (`┣━━`/`┗━━` for sub-groups).
-- **Ticket as header:** `┣━ **[KEY]({JIRA_SERVER}/browse/KEY) — Title**`, with the spoken update on the lines below, indented one level under it.
-- **Combined update header:** the group heading carries the keys instead, `┣━━ **Checkout** · [KEY-1](…) · [KEY-2](…)`, with the update indented under it.
-- **One thought per point**, one or two connected sentences; wrap long sentences across lines under the same guide. Separate distinct thoughts (where it's at, a handoff, an open question) with a blank connector line: the guide characters only, no text. Under a last child with no guide left, use a line of non-breaking spaces. Never split one thought across points.
+- **Ticket as header:** `┣━ **[KEY]({JIRA_SERVER}/browse/KEY) — Title**`, with the spoken update on the lines below behind a `┃` bar in the header's text column.
+- **Combined update header:** the group heading carries the keys instead, `┣━━ **Checkout** · [KEY-1](…) · [KEY-2](…)`, with the update behind a `┃` bar the same way.
+- **One thought per point**, one or two connected sentences; wrap long sentences across lines under the same guide. Separate distinct thoughts (where it's at, a handoff, an open question) with a separator line: the same guides and bar as the text lines, no text. Never split one thought across points.
 - **Blocked:** append ` ⛔` to the ticket or combined-group header. It is the only emoji in the output; status otherwise lives in the words.
 - Keep each update line under ~80 characters so wrapping doesn't break the guide.
 
@@ -162,17 +163,19 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 **◆ PAYMENTS REVAMP** · [PROJ-100]({JIRA_SERVER}/browse/PROJ-100)⏎
 ┃⏎
 ┣━━ **Checkout** · [PROJ-101]({JIRA_SERVER}/browse/PROJ-101) · [PROJ-102]({JIRA_SERVER}/browse/PROJ-102)⏎
-┃␣␣␣␣␣Provider details on the order confirmation are approved and through QA,⏎
-┃␣␣␣␣␣so they're ready to go out with the next release.⏎
-┃␣␣␣␣␣⏎
-┃␣␣␣␣␣The analytics follow-up (#125) is stacked on that PR, so it lands⏎
-┃␣␣␣␣␣straight after it merges.⏎
+┃␣␣␣┃␣␣Provider details on the order confirmation are approved and through QA,⏎
+┃␣␣␣┃␣␣so they're ready to go out with the next release.⏎
+┃␣␣␣┃⏎
+┃␣␣␣┃␣␣The analytics follow-up (#125) is stacked on that PR, so it lands⏎
+┃␣␣␣┃␣␣straight after it merges.⏎
 ┃⏎
 ┗━━ **Labels**⏎
 ␣␣␣␣┃⏎
 ␣␣␣␣┗━ **[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** ⛔⏎
-␣␣␣␣␣␣␣␣␣The mocks are done, but I can't finish the labels until my test-setup⏎
-␣␣␣␣␣␣␣␣␣fix (#123) is merged. I'm still working through the failing tests there.⏎
+␣␣␣␣␣␣␣┃␣␣The mocks are done, but I can't finish the labels until my test-setup⏎
+␣␣␣␣␣␣␣┃␣␣fix (#123) is merged.⏎
+␣␣␣␣␣␣␣┃⏎
+␣␣␣␣␣␣␣┃␣␣I'm still working through the failing tests there.⏎
 
 **◆ CODE REVIEWS**⏎
 ┃⏎
