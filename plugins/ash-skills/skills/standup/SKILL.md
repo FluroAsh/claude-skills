@@ -48,7 +48,7 @@ Query the current sprint directly for every ticket assigned to the user that isn
 JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = {PROJECT_KEY}`
 
 - Filter to tickets whose status category isn't `done` (this also excludes closed statuses such as `Discarded`).
-- Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 7 that it came from the board, not from tracked work.
+- Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 8 that it came from the board, not from tracked work.
 - This is the source of truth for "what's actively assigned to me" — Sunsama/the log tell you what was _worked on_, this tells you what _should_ be walked even if untouched.
 
 ## Step 2 — Check git activity
@@ -97,31 +97,50 @@ For any ticket that's `Blocked` (whether it's getting a full entry in Step 5 or 
 
 ## Step 5 — Draft the standup update
 
-Output has two sections: **Standup Update** (what the user is actually giving an update on) and, only if something qualifies, **Nothing to update** (tickets that exist and are assigned, but have no real news). Keep these visually and structurally separate — the first is what gets said out loud, the second is a reference list, not spoken material.
+Output has two sections: **Standup Update** (what the user is actually giving an update on) and, only if something qualifies, **Nothing to update** (tickets that exist and are assigned, but have no real news). Keep them visually separate: the first is read out, the second is a reference list.
 
 ### Standup Update
 
-This is spoken out loud in a standup, not read as a report — write it like the user is actually talking, first person, flowing sentences. Not a bullet-per-ticket dump with metadata tags, but not one giant merged paragraph either.
+This is spoken out loud in a standup, not read as a report — write it like the user is actually talking, first person, short sentences. Not metadata tags, but not one merged paragraph either.
 
 - A ticket belongs here if there's genuine news: it was worked on today, its status changed, its PR was reviewed/approved, a Slack thread moved it, or there's a new/updated blocker worth surfacing.
-- **Keep it compact** — one or two sentences per entry. Keep what the team needs: status/outcome, PR state, blockers and who it's waiting on, handoffs or asks of others. Cut process narration ("spent the morning", which subtasks are open) unless it explains a blocker.
-- **One entry per ticket, led by the ticket link plus its title, with a natural-sounding sentence or two underneath** — e.g. `**[PROJ-102](...) — Status shows UP while provisioning** — Dev and code review are both done here, the only thing blocking me is waiting on test data from the backend team.` The ticket key/link is how the user visually tracks which update is which, the title gives it a name they can scan without opening Jira, and the sentence after it is what they'd actually say.
-- Only merge two tickets into one entry/paragraph when they're genuinely the same piece of work or directly related — don't merge just because they happened on the same day. Default to one ticket, one entry.
-- Fold in continuity from yesterday within that ticket's own entry where relevant (per Step 3) — not as a separate section
-- Fold blockers (and any related PR from Step 2a) into the relevant ticket's entry rather than a separate hard-headed section — a blocker is just part of what the user would say about that ticket ("...the only thing blocking me is..."). If a ticket has no blocker, don't force a mention of "no blockers" — just don't say anything about it
-- Don't fabricate detail beyond what git/Sunsama/the log actually support — if a ticket has nothing beyond a generic title, say that plainly and briefly, in the same conversational tone (e.g. "not much to report yet here, still early")
-- No ceremony entries (standup, planning, refinement, retro) in the update itself
-- **Code reviews** of others' PRs go in one closing line, not per-ticket entries — e.g. `**Code reviews** — Approved Sam's #412 (PROJ-210) and left comments on Alex's #398.` Omit if there were none.
-- Slack outcomes fold into their ticket's entry. One not tied to a ticket but relevant to the team gets a single short line (e.g. "Raised the date-format mismatch with the payments team in #squad-ui"); never a transcript.
+- **Keep it compact.** Keep what the team needs: status/outcome, PR state, blockers and who it's waiting on, handoffs or asks of others. Cut process narration ("spent the morning", which subtasks are open) unless it explains a blocker.
+- Fold continuity from yesterday (Step 3), blockers and any related PR (Step 2a) into the ticket's own update. No "no blockers" filler when there is none.
+- Don't fabricate detail beyond what the sources support — if a ticket has nothing beyond a generic title, say so plainly (e.g. "not much to report yet here, still early").
+- No ceremony entries (standup, planning, refinement, retro).
+- Slack outcomes fold into their ticket. One not tied to a ticket but relevant to the team goes in a `◆ OTHER` group as one short line; never a transcript.
+
+#### Grouping
+
+- **Epic:** the ticket's parent epic (get issue, `fields.parent`; one call per ticket, reusing data already fetched). Group heading: `**◆ {EPIC NAME IN CAPS}** · [{EPIC-KEY}]({JIRA_SERVER}/browse/{EPIC-KEY})`.
+- **Sub-groups:** within an epic, group by the current weekly log's Sprint Goals when a goal clearly names the ticket or its area. No match: no sub-group, tickets sit directly under the epic.
+- **No epic:** group under a short topic heading (e.g. `◆ SERVICES PAGE POLISH`) with no key. Never invent an epic or present a topic as one.
+- **Follow-ups:** a ticket split out of another, or whose PR is stacked on another's, nests under its parent ticket.
+- **Code reviews** of others' PRs: a final `◆ CODE REVIEWS` group, one line per PR author or one combined line. Omit when there were none.
+- Order groups by the epic with the most news first; order tickets within a group by how they'd be talked through (dependencies before dependents).
+
+#### Tree format
+
+The tree is plain markdown, not a code block, so links stay clickable. Markdown renderers strip leading spaces, collapse runs of spaces, and turn a line indented 4+ spaces after a blank line into a code block. So:
+
+- **Indent with non-breaking spaces (U+00A0), never ordinary spaces.** This applies to every leading or alignment space in the tree.
+- **End every tree line with two trailing spaces** so its line break survives.
+- Heavy connectors: `┃` guide, `┣━` for a child with siblings below, `┗━` for the last child (`┣━━`/`┗━━` for sub-groups).
+- **Ticket as header:** `┣━ **[KEY]({JIRA_SERVER}/browse/KEY) — Title**`, with the spoken update on the lines below, indented one level under it.
+- **One point per line.** Separate points (review state, handoff, follow-up, open question) with a blank connector line: the guide characters only, no text. Under a last child with no guide left, use a line of non-breaking spaces.
+- **Blocked:** append ` ⛔` to the ticket header. It is the only emoji in the output; status otherwise lives in the words.
+- Keep each update line under ~80 characters so wrapping doesn't break the guide.
 
 ### Step 5a — "Nothing to update" section
 
-Once a ticket has been reported as blocked or untouched in a prior standup, its status is unlikely to have meaningfully changed by the next one unless something explicitly moved. Rather than forcing a spoken line for these every time, list them separately and briefly:
+Once a ticket has been reported as blocked or untouched, it's unlikely to have changed by the next standup unless something explicitly moved. List these separately and briefly:
 
-- Candidates: Step 1a board tickets with no Step 1–2c signal in the window, and any ticket that's genuinely got nothing new to say (untouched backlog items, blocked tickets sitting exactly where they were).
-- Format as a flat bullet list, one line per ticket: `[KEY](link) — title (status context, e.g. "blocked, untouched" or "backlog, untouched")`.
-- **If a ticket is `Blocked`, append the reason** found in Step 4 (latest Jira comment) — e.g. `blocked on the API change landing in staging`. Don't just say "blocked" with no reason if a reason was findable.
-- **Omit this entire section (including its heading) if nothing qualifies** — don't force it to appear empty or with a "nothing here" placeholder. A standup with every ticket having real news needs no such section at all.
+- Candidates: Step 1a board tickets with no Step 1–2c signal in the window, and any ticket with genuinely nothing new (untouched backlog items, blocked tickets sitting where they were).
+- Place it below a heavy divider line (`━` × 40), headed `## ◇ Nothing to update`, then the italic line *Assigned to me but no news. Not for reading out.*
+- Hollow connectors (`◇` group, `┊` guide, `└┄` ticket). Each ticket sits under its group path, e.g. `◇ Payments revamp › Labels`, using the same groups as Step 5.
+- Ticket line: `└┄ [KEY](link) — Title · *status context*` (e.g. *backlog, untouched*). **For a `Blocked` ticket, the status context is the reason** from Step 4 (latest Jira comment) — never just "blocked" when a reason was findable.
+- Same tree format rules as Step 5 (non-breaking spaces, trailing two spaces).
+- **Omit the whole section, divider included, if nothing qualifies.**
 
 ## Step 6 — Context (optional)
 
@@ -131,30 +150,54 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 ## Step 7 — Example output shape
 
+`␣` marks a non-breaking space (U+00A0) and `⏎` two trailing spaces; emit the real characters, not these markers.
+
 ```markdown
 ## Standup Update
 
-**[PROJ-101]({JIRA_SERVER}/browse/PROJ-101) — Show provider details on order confirmation** — PR got approved by Jordan, QA tested it, so it's at Ready For Release now.
+**◆ PAYMENTS REVAMP** · [PROJ-100]({JIRA_SERVER}/browse/PROJ-100)⏎
+┃⏎
+┣━━ **Checkout**⏎
+┃␣␣␣┃⏎
+┃␣␣␣┗━ **[PROJ-101]({JIRA_SERVER}/browse/PROJ-101) — Show provider details on order confirmation**⏎
+┃␣␣␣␣␣␣␣┃␣␣PR #120 got approved by Jordan and QA tested it.⏎
+┃␣␣␣␣␣␣␣┃⏎
+┃␣␣␣␣␣␣␣┃␣␣It's at Ready For Release now.⏎
+┃␣␣␣␣␣␣␣┃⏎
+┃␣␣␣␣␣␣␣┗━ **[PROJ-102]({JIRA_SERVER}/browse/PROJ-102) — Report provider in checkout analytics**⏎
+┃␣␣␣␣␣␣␣␣␣␣␣␣Draft PR #125 is stacked on #120, so it lands after that merges.⏎
+┃⏎
+┗━━ **Labels**⏎
+␣␣␣␣┃⏎
+␣␣␣␣┗━ **[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** ⛔⏎
+␣␣␣␣␣␣␣␣␣The mocks are done.⏎
+␣␣␣␣␣␣␣␣␣⏎
+␣␣␣␣␣␣␣␣␣It's blocked on my test-setup fix PR (#123), which I'm still working through.⏎
 
-**[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** — Mocks are done. It's blocked on my test-setup fix PR (#123) — still working through test failures there, and I can't finalise the labels until it's merged.
+**◆ CODE REVIEWS**⏎
+┃⏎
+┗━ Approved Sam's #412 (PROJ-210) and left comments on Alex's #398.⏎
 
-**Code reviews** — Approved Sam's #412 (PROJ-210) and left comments on Alex's #398.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## Nothing to update
+## ◇ Nothing to update
 
-- [PROJ-104]({JIRA_SERVER}/browse/PROJ-104) — Hide deprecated options — blocked on the API change landing in staging
-- [PROJ-105]({JIRA_SERVER}/browse/PROJ-105) — Billing date displays in the wrong timezone (backlog, untouched)
+*Assigned to me but no news. Not for reading out.*
+
+◇ Payments revamp › Labels⏎
+┊⏎
+└┄ [PROJ-104]({JIRA_SERVER}/browse/PROJ-104) — Hide deprecated options · *blocked on the API change landing in staging*⏎
 
 ---
 
-**Reference note:** PR #123's last CI run passed, so the test failures came from you, not CI. Skipped: a dismissed review on #377 and a DM with Priya with no clear outcome.
+**Reference note:** epic confirmed from Jira for PROJ-101–104; Checkout and Labels are sprint-goal groups from the weekly log. PR #123's last CI run passed, so the test failures came from you, not CI.
 ```
 
-This is a shape reference, not literal content to reuse — ticket keys, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
+This is a shape reference, not literal content to reuse — ticket keys, groups, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
 
 ## Step 8 — Assumptions / reference footnote
 
-One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: assumptions made, sources skipped (no `gh`/Slack), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
+One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: how the grouping was decided (which epics came from Jira, which groups are inferred topics or sprint goals — never present an inferred group as fact), assumptions made, sources skipped (no `gh`/Slack), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
 
 ```
 ---
