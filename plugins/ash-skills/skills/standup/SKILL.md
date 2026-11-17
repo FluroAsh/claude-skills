@@ -115,7 +115,11 @@ This is the user reporting to their manager and team, out loud. It should give t
 - A ticket belongs here if there's genuine news: it was worked on today, its status changed, its PR was reviewed/approved, a Slack thread or ticket comment moved it, it has an open question (Step 2d), or there's a new/updated blocker worth surfacing.
 - **Keep it compact.** Keep what the team needs: status/outcome, PR state, blockers and who it's waiting on, handoffs or asks of others. Cut process narration ("spent the morning", which subtasks are open) unless it explains a blocker.
 - **Plain meaning, not Jira status.** Say what a status means ("ready to go out with the next release"), not the field value ("at Ready For Release").
-- **Ticket comments** (Step 2d) are part of the update. **Say what an open question actually is**: who asked, what, and who it's waiting on — e.g. "I asked Priya on Tuesday whether the endpoint returns cancelled orders; still waiting on her before I can finish the filter." Never reduce it to "no answer yet", "pending question" or "waiting on a reply". A question someone asked the user goes in too, with what they're waiting for.
+- **Ticket comments** (Step 2d) are part of the update. Raise an open question the way the user would in the room, never as a history of the comments:
+  - Lead with where the work is, then ask the question itself, addressed to the person by name, and say what it holds up — e.g. "The history view is done apart from cancelled orders. Priya, I've got a question on the ticket for you: does the orders endpoint already return them, or do we need a new filter? That's the last thing holding it up."
+  - Mention the channel or date only when the wait itself matters (e.g. "it's been sitting since last Tuesday").
+  - A question asked of the user: answer it if a source shows the answer, otherwise say it's next and what it unblocks — e.g. "Jordan, I still owe you an answer on the mobile cards; QA is holding for it."
+  - Never reduce a question to "no answer yet", "pending question" or "waiting on a reply".
 - **What's next**, only when a source shows it: a stacked PR, a ticket comment, the log, a Slack thread. Never guess a next step or a date.
 - Fold continuity from yesterday (Step 3), blockers and any related PR (Step 2a) into the ticket's own update. No "no blockers" filler when there is none.
 - Don't fabricate detail beyond what the sources support — if a ticket has nothing beyond a generic title, say so plainly (e.g. "not much to report yet here, still early").
