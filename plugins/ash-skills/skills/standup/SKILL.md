@@ -50,6 +50,21 @@ JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = 
 - Filter to tickets whose status category isn't `done` (this also excludes closed statuses such as `Discarded`).
 - Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 8 that it came from the board, not from tracked work.
 - This is the source of truth for "what's actively assigned to me" — Sunsama/the log tell you what was _worked on_, this tells you what _should_ be walked even if untouched.
+- Also request the sprint field (find it by name `Sprint` in Jira's field metadata if its id isn't known). Keep the sprint with state `active`: its name, `startDate` and `endDate` feed the Step 1b bulkhead.
+
+## Step 1b — Sprint bulkhead
+
+A compact sprint header that opens the Standup Update. Render it with the bundled script, never by hand-counting days:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/bulkhead.py" --name "{sprint name}" --start "{startDate}" --end "{endDate}" \
+  --count "{Status}={n}" ...   # one per status, in workflow order: to-do first, done last
+```
+
+- **Counts:** the user's Step 1a tickets, before the done filter, counted by Jira status name. Leave out discarded or won't-do tickets, and tickets in the sprint assigned to someone else. The script drops zero counts and shows `Pending Deploy` as `Deploy`. There is no review count: review state stays in the ticket text.
+- The script takes Jira's timestamps as-is and converts them to the local timezone, so an end date stored as 14:00 UTC lands on the right local day.
+- **No active sprint, or no Jira:** skip the bulkhead and say why in Step 8.
+- **No `python3`:** draw it by hand to the same rules: the current Mon–Fri only; `●` working day done, `◉` today, `○` working day left, `·` outside the sprint, `⚑` the sprint's last day (replacing that day's mark, or after `╌` as its own labelled day when it's in a later week); "days left" counts working days after today up to and including the last day.
 
 ## Step 2 — Check git activity
 
@@ -106,7 +121,7 @@ For any ticket that's `Blocked` (whether it's getting a full entry in Step 5 or 
 
 ## Step 5 — Draft the standup update
 
-Output has two sections: **Standup Update** (what the user is actually giving an update on) and, only if something qualifies, **Nothing to update** (tickets that exist and are assigned, but have no real news). Keep them visually separate: the first is read out, the second is a reference list.
+Output has two sections: **Standup Update** (what the user is actually giving an update on), opening with the Step 1b bulkhead as a `text` code block above the first status group, and, only if something qualifies, **Nothing to update** (tickets that exist and are assigned, but have no real news). Keep them visually separate: the first is read out, the second is a reference list.
 
 ### Standup Update
 
@@ -181,8 +196,17 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 `␣` marks a non-breaking space (U+00A0) and `⏎` two trailing spaces; emit the real characters, not these markers.
 
-```markdown
+````markdown
 ## Standup Update
+
+```text
+HELIOS SPRINT 22 · Thu 19 Nov · 3 days left
+────────────────────────────────────────────────────
+Mon  Tue  Wed  Thu  Fri       Tue
+ ●────●────●────◉────○╌╌╌╌╌╌╌╌╌⚑ sprint ends
+────────────────────────────────────────────────────
+To Do 2 │ In Progress 3 │ QA 1 │ Deploy 1 │ Done 2
+```
 
 **◆ DONE · READY TO GO OUT**⏎
 ┃⏎
@@ -241,13 +265,13 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 ---
 
 **Reference note:** epics are from Jira; PROJ-106 has none. PROJ-102 is In Progress in Jira but has an open PR, so it's under In review; PROJ-105 is in progress but nested under its parent PROJ-101. PR #123's last CI run passed, so the test failures came from you, not CI.
-```
+````
 
 This is a shape reference, not literal content to reuse — ticket keys, groups, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
 
 ## Step 8 — Assumptions / reference footnote
 
-One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: how the grouping was decided (tickets whose status group differs from their Jira status, and why; tickets with no epic — never present an inferred epic or status as fact), assumptions made, sources skipped (no `gh`/Slack), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
+One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: how the grouping was decided (tickets whose status group differs from their Jira status, and why; tickets with no epic — never present an inferred epic or status as fact), assumptions made, sources skipped (no `gh`/Slack, or no bulkhead because there's no active sprint or Jira), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
 
 ```
 ---
