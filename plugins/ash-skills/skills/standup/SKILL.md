@@ -95,7 +95,7 @@ Check in this priority order, stopping at the first that gives a clear answer pe
 
 1. Obsidian notes (today's/this week's log) for an explicit blocker mention
 2. Sunsama task notes for an explicit blocker mention (unlikely, but check)
-3. Slack threads from Step 2c, or a PR from Step 2b waiting on review / with changes requested
+3. Slack threads from Step 2c. A PR waiting on review or with changes requested (Step 2b) is in review, not a blocker
 4. Jira: get issue (e.g. `getJiraIssue`) — check status (e.g. `Blocked`) or a flagged indicator
 5. Infer from whatever else is available (e.g. a task sitting untouched for days with no progress signal)
 6. If none of the above give a signal, default to **not blocked** — do not assume a blocker exists without evidence
@@ -132,7 +132,7 @@ Group by status, in the order the update is talked through. Omit empty groups.
 
 | Group | Holds |
 |---|---|
-| `**◆ DONE · READY TO GO OUT**` | Jira status category `done`, or only release/deploy remains |
+| `**◆ DONE · READY TO GO OUT**` | Finished in the window: status category `done`, or only release/deploy remains. Leave out tickets discarded or won't-do, and done tickets with no news |
 | `**◆ IN REVIEW**` | A PR open and waiting on review, or with changes requested |
 | `**◆ IN PROGRESS**` | Being worked on |
 | `**◆ NOT STARTED**` | Status category `new` but with news (e.g. an open question) |
@@ -140,10 +140,10 @@ Group by status, in the order the update is talked through. Omit empty groups.
 | `**◆ OTHER**` | Slack outcomes not tied to a ticket |
 | `**◆ CODE REVIEWS**` | Reviews of others' PRs, one line per PR author or one combined line |
 
-- **Pick the group from the evidence, not the Jira field alone.** A blocker puts a ticket in BLOCKED whatever its status; an open PR waiting on review puts an "In Progress" ticket in IN REVIEW. Say in Step 8 where the group differs from the Jira status.
-- **Epic in brackets:** each ticket header ends with its epic's name in brackets, as Jira writes it and without the key, e.g. `(Payments Revamp)`. Take it from get issue (`fields.parent`), reusing data already fetched. No epic: no brackets. Never invent one.
+- **Pick the group from the evidence, not the Jira field alone.** A blocker puts a ticket in BLOCKED whatever its status; an open PR waiting on review puts an "In Progress" ticket in IN REVIEW. A PR waiting on review or with changes requested is IN REVIEW, not a blocker, unless something else stops the work. Say in Step 8 where the group differs from the Jira status.
+- **Epic in brackets:** each ticket header ends with its epic's name in brackets, as Jira writes it and without the key, e.g. `(Payments Revamp)`. Take it from get issue (`fields.parent`), only when the parent's issue type is Epic; for a sub-task, use its parent's epic. Reuse data already fetched. No epic: no brackets. Never invent one.
 - **Follow-ups:** a ticket split out of another, or whose PR is stacked on another's, nests under its parent ticket even when its status differs; its own update says where it's at.
-- **Combined updates:** only for tickets in the same status group that share one story (one depends on the other, or they're stuck for the same reason) where a sentence naturally covers them. Otherwise one header per ticket.
+- **Combined updates:** only for tickets in the same status group and the same epic that share one story (one depends on the other, or they're stuck for the same reason) where a sentence naturally covers them. Otherwise one header per ticket.
 - Within a group, order tickets by how they'd be talked through (dependencies before dependents).
 
 #### Tree format
@@ -166,7 +166,7 @@ Once a ticket has been reported as blocked or untouched, it's unlikely to have c
 
 - Candidates: Step 1a board tickets with no Step 1–2d signal in the window and no open question (a ticket with one goes in the Standup Update), and any ticket with genuinely nothing new (untouched backlog items, blocked tickets sitting where they were).
 - Place it below a heavy divider line (`━` × 40), headed `## ◇ Nothing to update`, then the italic line *Assigned to me but no news. Not for reading out.*
-- Hollow connectors (`◇` group, `┊` guide, `└┄` ticket), grouped by status like Step 5: `◇ Not started`, `◇ In progress`, `◇ In review`, `◇ Blocked`, in that order, empty groups omitted.
+- Hollow connectors (`◇` group, `┊` guide, `└┄` ticket), grouped by status in Step 5's order: `◇ In review`, `◇ In progress`, `◇ Not started`, `◇ Blocked`, empty groups omitted. Done tickets with no news are left out entirely.
 - Ticket line: `└┄ [KEY](link) — Title (Epic Name) · *status context*` (e.g. *backlog, untouched*). **For a `Blocked` ticket, the status context is the reason** from Step 4 (latest Jira comment) — never just "blocked" when a reason was findable.
 - Same tree format rules as Step 5 (non-breaking spaces, trailing two spaces).
 - **Omit the whole section, divider included, if nothing qualifies.**
@@ -240,7 +240,7 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 ---
 
-**Reference note:** epics are from Jira; PROJ-106 has none. PROJ-102 is In Progress in Jira but has an open PR, so it's under In review. PR #123's last CI run passed, so the test failures came from you, not CI.
+**Reference note:** epics are from Jira; PROJ-106 has none. PROJ-102 is In Progress in Jira but has an open PR, so it's under In review; PROJ-105 is in progress but nested under its parent PROJ-101. PR #123's last CI run passed, so the test failures came from you, not CI.
 ```
 
 This is a shape reference, not literal content to reuse — ticket keys, groups, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
