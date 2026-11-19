@@ -128,13 +128,23 @@ This is the user reporting to their manager and team, out loud. It should give t
 
 #### Grouping
 
-- **Epic:** the ticket's parent epic (get issue, `fields.parent`; one call per ticket, reusing data already fetched). Group heading: `**◆ {EPIC NAME IN CAPS}** · [{EPIC-KEY}]({JIRA_SERVER}/browse/{EPIC-KEY})`.
-- **Sub-groups:** within an epic, group by the current weekly log's Sprint Goals when a goal clearly names the ticket or its area. No match: no sub-group, tickets sit directly under the epic.
-- **No epic:** group under a short topic heading (e.g. `◆ SERVICES PAGE POLISH`) with no key. Never invent an epic or present a topic as one.
-- **Follow-ups:** a ticket split out of another, or whose PR is stacked on another's, nests under its parent ticket.
-- **Combined updates:** when tickets in the same group share one story (one depends on the other, or they're in the same state for the same reason) and a sentence naturally covers them, give them one update under the group heading instead of a header each. Unrelated tickets that only share an epic keep their own headers; a forced paragraph reads worse than a list.
-- **Code reviews** of others' PRs: a final `◆ CODE REVIEWS` group, one line per PR author or one combined line. Omit when there were none.
-- Order groups by the epic with the most news first; order tickets within a group by how they'd be talked through (dependencies before dependents).
+Group by status, in the order the update is talked through. Omit empty groups.
+
+| Group | Holds |
+|---|---|
+| `**◆ DONE · READY TO GO OUT**` | Jira status category `done`, or only release/deploy remains |
+| `**◆ IN REVIEW**` | A PR open and waiting on review, or with changes requested |
+| `**◆ IN PROGRESS**` | Being worked on |
+| `**◆ NOT STARTED**` | Status category `new` but with news (e.g. an open question) |
+| `**◆ BLOCKED ⛔**` | Status `Blocked`, or a blocker found in Step 4 |
+| `**◆ OTHER**` | Slack outcomes not tied to a ticket |
+| `**◆ CODE REVIEWS**` | Reviews of others' PRs, one line per PR author or one combined line |
+
+- **Pick the group from the evidence, not the Jira field alone.** A blocker puts a ticket in BLOCKED whatever its status; an open PR waiting on review puts an "In Progress" ticket in IN REVIEW. Say in Step 8 where the group differs from the Jira status.
+- **Epic in brackets:** each ticket header ends with its epic's name in brackets, as Jira writes it and without the key, e.g. `(Payments Revamp)`. Take it from get issue (`fields.parent`), reusing data already fetched. No epic: no brackets. Never invent one.
+- **Follow-ups:** a ticket split out of another, or whose PR is stacked on another's, nests under its parent ticket even when its status differs; its own update says where it's at.
+- **Combined updates:** only for tickets in the same status group that share one story (one depends on the other, or they're stuck for the same reason) where a sentence naturally covers them. Otherwise one header per ticket.
+- Within a group, order tickets by how they'd be talked through (dependencies before dependents).
 
 #### Tree format
 
@@ -143,11 +153,11 @@ The tree is plain markdown, not a code block, so links stay clickable. Markdown 
 - **Indent with non-breaking spaces (U+00A0), never ordinary spaces.** This applies to every leading or alignment space in the tree.
 - **End every tree line with two trailing spaces** so its line break survives.
 - **No empty or space-only line anywhere inside a tree.** Either one starts a new paragraph, and renderers (the Claude Code terminal among them) strip the indent from a paragraph's start. Every line, separators included, has a visible connector after its indent.
-- Heavy connectors: `┃` guide, `┣━` for a child with siblings below, `┗━` for the last child (`┣━━`/`┗━━` for sub-groups).
-- **Ticket as header:** `┣━ **[KEY]({JIRA_SERVER}/browse/KEY) — Title**`, with the spoken update on the lines below behind a `┃` bar in the header's text column.
-- **Combined update header:** the group heading carries the keys instead, `┣━━ **Checkout** · [KEY-1](…) · [KEY-2](…)`, with the update behind a `┃` bar the same way.
+- Heavy connectors: `┃` guide, `┣━` for a child with siblings below, `┗━` for the last child.
+- **Ticket as header:** `┣━ **[KEY]({JIRA_SERVER}/browse/KEY) — Title** (Epic Name)`, with the spoken update on the lines below behind a `┃` bar in the header's text column.
+- **Combined update header:** `┣━ **[KEY-1](…) · [KEY-2](…) — Short shared title** (Epic Name)`, with the update behind a `┃` bar the same way.
 - **One thought per point**, one or two connected sentences; wrap long sentences across lines under the same guide. Separate distinct thoughts (where it's at, a handoff, an open question) with a separator line: the same guides and bar as the text lines, no text. Never split one thought across points.
-- **Blocked:** append ` ⛔` to the ticket or combined-group header. It is the only emoji in the output; status otherwise lives in the words.
+- **⛔ appears only on the BLOCKED group heading.** It is the only emoji in the output; status otherwise lives in the words. Each blocked ticket says what it's waiting on and who.
 - Keep each update line under ~80 characters so wrapping doesn't break the guide.
 
 ### Step 5a — "Nothing to update" section
@@ -156,8 +166,8 @@ Once a ticket has been reported as blocked or untouched, it's unlikely to have c
 
 - Candidates: Step 1a board tickets with no Step 1–2d signal in the window and no open question (a ticket with one goes in the Standup Update), and any ticket with genuinely nothing new (untouched backlog items, blocked tickets sitting where they were).
 - Place it below a heavy divider line (`━` × 40), headed `## ◇ Nothing to update`, then the italic line *Assigned to me but no news. Not for reading out.*
-- Hollow connectors (`◇` group, `┊` guide, `└┄` ticket). Each ticket sits under its group path, e.g. `◇ Payments revamp › Labels`, using the same groups as Step 5.
-- Ticket line: `└┄ [KEY](link) — Title · *status context*` (e.g. *backlog, untouched*). **For a `Blocked` ticket, the status context is the reason** from Step 4 (latest Jira comment) — never just "blocked" when a reason was findable.
+- Hollow connectors (`◇` group, `┊` guide, `└┄` ticket), grouped by status like Step 5: `◇ Not started`, `◇ In progress`, `◇ In review`, `◇ Blocked`, in that order, empty groups omitted.
+- Ticket line: `└┄ [KEY](link) — Title (Epic Name) · *status context*` (e.g. *backlog, untouched*). **For a `Blocked` ticket, the status context is the reason** from Step 4 (latest Jira comment) — never just "blocked" when a reason was findable.
 - Same tree format rules as Step 5 (non-breaking spaces, trailing two spaces).
 - **Omit the whole section, divider included, if nothing qualifies.**
 
@@ -174,22 +184,41 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 ```markdown
 ## Standup Update
 
-**◆ PAYMENTS REVAMP** · [PROJ-100]({JIRA_SERVER}/browse/PROJ-100)⏎
+**◆ DONE · READY TO GO OUT**⏎
 ┃⏎
-┣━━ **Checkout** · [PROJ-101]({JIRA_SERVER}/browse/PROJ-101) · [PROJ-102]({JIRA_SERVER}/browse/PROJ-102)⏎
-┃␣␣␣┃␣␣Provider details on the order confirmation are approved and through QA,⏎
-┃␣␣␣┃␣␣so they're ready to go out with the next release.⏎
-┃␣␣␣┃⏎
-┃␣␣␣┃␣␣The analytics follow-up (#125) is stacked on that PR, so it lands⏎
-┃␣␣␣┃␣␣straight after it merges.⏎
+┗━ **[PROJ-101]({JIRA_SERVER}/browse/PROJ-101) — Provider details on order confirmation** (Payments Revamp)⏎
+␣␣␣┃␣␣Approved and through QA, so it's ready to go out with the next release.⏎
+␣␣␣┃⏎
+␣␣␣┗━ **[PROJ-105]({JIRA_SERVER}/browse/PROJ-105) — Report provider in checkout analytics** (Payments Revamp)⏎
+␣␣␣␣␣␣┃␣␣Still in progress. Its draft PR (#125) is stacked on #120, so it lands⏎
+␣␣␣␣␣␣┃␣␣straight after that merges.⏎
+
+**◆ IN REVIEW**⏎
 ┃⏎
-┗━━ **Labels**⏎
-␣␣␣␣┃⏎
-␣␣␣␣┗━ **[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** ⛔⏎
-␣␣␣␣␣␣␣┃␣␣The mocks are done, but I can't finish the labels until my test-setup⏎
-␣␣␣␣␣␣␣┃␣␣fix (#123) is merged.⏎
-␣␣␣␣␣␣␣┃⏎
-␣␣␣␣␣␣␣┃␣␣I'm still working through the failing tests there.⏎
+┣━ **[PROJ-102]({JIRA_SERVER}/browse/PROJ-102) — Receipt email layout** (Payments Revamp)⏎
+┃␣␣┃␣␣PR #130 is up and waiting on a second reviewer, if anyone has a moment.⏎
+┃⏎
+┗━ **[PROJ-107]({JIRA_SERVER}/browse/PROJ-107) — Refund reason dropdown** (Refunds)⏎
+␣␣␣┃␣␣Alex requested changes yesterday. I've addressed them and re-requested⏎
+␣␣␣┃␣␣review.⏎
+
+**◆ IN PROGRESS**⏎
+┃⏎
+┣━ **[PROJ-108]({JIRA_SERVER}/browse/PROJ-108) — Saved cards list** (Payments Revamp)⏎
+┃␣␣┃␣␣About halfway through. The list renders, and I'm on the delete flow next.⏎
+┃⏎
+┗━ **[PROJ-106]({JIRA_SERVER}/browse/PROJ-106) — Show cancelled orders in history**⏎
+␣␣␣┃␣␣The history view is done apart from cancelled orders. Priya, I've got⏎
+␣␣␣┃␣␣a question on the ticket for you: does the orders endpoint already⏎
+␣␣␣┃␣␣return them, or do we need a new filter? That's the last thing left.⏎
+
+**◆ BLOCKED ⛔**⏎
+┃⏎
+┗━ **[PROJ-103]({JIRA_SERVER}/browse/PROJ-103) — Update status labels in the app** (Payments Revamp)⏎
+␣␣␣┃␣␣The mocks are done, but I can't finish the labels until my test-setup⏎
+␣␣␣┃␣␣fix (#123) is merged.⏎
+␣␣␣┃⏎
+␣␣␣┃␣␣That's waiting on a reviewer, and I'm still fixing failing tests there.⏎
 
 **◆ CODE REVIEWS**⏎
 ┃⏎
@@ -201,20 +230,24 @@ Keep it to 1–3 sentences, written in the same natural spoken tone as Step 5 �
 
 *Assigned to me but no news. Not for reading out.*
 
-◇ Payments revamp › Labels⏎
+◇ Not started⏎
 ┊⏎
-└┄ [PROJ-104]({JIRA_SERVER}/browse/PROJ-104) — Hide deprecated options · *blocked on the API change landing in staging*⏎
+└┄ [PROJ-109]({JIRA_SERVER}/browse/PROJ-109) — Hide deprecated options (Payments Revamp) · *backlog, untouched*⏎
+
+◇ Blocked⏎
+┊⏎
+└┄ [PROJ-104]({JIRA_SERVER}/browse/PROJ-104) — Archive old receipts (Refunds) · *waiting on the API change landing in staging*⏎
 
 ---
 
-**Reference note:** epic confirmed from Jira for PROJ-101–104; Checkout and Labels are sprint-goal groups from the weekly log, and PROJ-101/102 share one update. PR #123's last CI run passed, so the test failures came from you, not CI.
+**Reference note:** epics are from Jira; PROJ-106 has none. PROJ-102 is In Progress in Jira but has an open PR, so it's under In review. PR #123's last CI run passed, so the test failures came from you, not CI.
 ```
 
 This is a shape reference, not literal content to reuse — ticket keys, groups, statuses, and blocker text must always come from that day's actual Sunsama/git/Jira/GitHub/Slack lookups.
 
 ## Step 8 — Assumptions / reference footnote
 
-One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: how the grouping was decided (which epics came from Jira, which groups are inferred topics or sprint goals — never present an inferred group as fact), assumptions made, sources skipped (no `gh`/Slack), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
+One short, plain line (or a couple, if genuinely distinct) for the user's eyes only — an inline comment _from the agent_, never something they'd say out loud, and never blended into the spoken body above. Use it to flag standout discrepancies: how the grouping was decided (tickets whose status group differs from their Jira status, and why; tickets with no epic — never present an inferred epic or status as fact), assumptions made, sources skipped (no `gh`/Slack), dismissed reviews and ambiguous DMs left out, data that contradicts what the user said, tickets sourced only from the board rather than tracked work, stale pipeline statuses, etc. Separate it clearly from everything above with a horizontal rule (`---`) and a small `Reference note:` label, so it visually reads as a distinct footer:
 
 ```
 ---
