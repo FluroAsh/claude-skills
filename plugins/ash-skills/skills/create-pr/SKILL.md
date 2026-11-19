@@ -54,8 +54,15 @@ If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL
 - Brevity is the priority. A large diff does not justify more bullets: group related changes, and don't list files, helpers or sub-components unless one matters to the reviewer on its own.
 - Leave out test additions unless tests are the deliverable or encode behaviour the reviewer must know. No QA steps, test plans or verification checklists.
 - Add a `### Behaviour` section (one small Mermaid chart or table) only when branching rules or config mappings would otherwise take several sentences. Check it against the code; if unsure, leave it out.
+- Use diagrams sparingly, and only where one makes the PR easier to review: an architecture change, or a user or data flow across several steps. GitHub renders Mermaid natively, so check the chart on the PR after publishing. If its lines tangle (the same check repeated for each way in, say), a table reads better.
+- When the change replaces legacy behaviour, a table with a column for each side can show the difference at a glance, with ✅ and ❌ marking what each one does:
+
+  | Scenario | Legacy | New |
+  | --- | --- | --- |
+  | {what the user does} | ❌ {what happened} | ✅ {what happens now} |
 - Stacked PR (the base is another feature branch): link the parent PR, found with `gh pr list --head {base} --json url`, not the branch.
 - Screenshots: `gh` cannot upload images. For a visual change, add an empty `### Screenshots` heading and tell the user to drag the images into the PR on GitHub.
+- Say "legacy" for the page, flow or behaviour being replaced, never "old", and "new" or "redesigned" for what replaces it.
 - Domain terms: if a glossary skill for the company's domain is installed, use product and domain terms as it defines them.
 
 ## Step 4 — Create or update
