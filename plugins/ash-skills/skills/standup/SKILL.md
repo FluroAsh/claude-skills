@@ -50,20 +50,24 @@ JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = 
 - Filter to tickets whose status category isn't `done` (this also excludes closed statuses such as `Discarded`).
 - Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 8 that it came from the board, not from tracked work.
 - This is the source of truth for "what's actively assigned to me" — Sunsama/the log tell you what was _worked on_, this tells you what _should_ be walked even if untouched.
-- Also request the sprint field (find it by name `Sprint` in Jira's field metadata if its id isn't known). Keep the sprint with state `active`: its name, `startDate` and `endDate` feed the Step 1b bulkhead.
+- Also request the sprint field (find it by name `Sprint` in Jira's field metadata if its id isn't known). Keep the sprint with state `active`: its name, `startDate` and `endDate` feed the Step 1b bulkhead. If tickets sit in more than one active sprint, use the one most of them share.
 
 ## Step 1b — Sprint bulkhead
 
 A compact sprint header that opens the Standup Update. Render it with the bundled script, never by hand-counting days:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/bulkhead.py" --name "{sprint name}" --start "{startDate}" --end "{endDate}" \
-  --count "{Status}={n}" ...   # one per status, in workflow order: to-do first, done last
+python3 "${CLAUDE_SKILL_DIR}/bulkhead.py" <<'JSON'
+{"name": "{sprint name}", "start": "{startDate}", "end": "{endDate}",
+ "counts": [["{Status}", {n}], ...]}
+JSON
 ```
 
-- **Counts:** the user's Step 1a tickets, before the done filter, counted by Jira status name. Leave out discarded or won't-do tickets, and tickets in the sprint assigned to someone else. The script drops zero counts and shows `Pending Deploy` as `Deploy`. There is no review count: review state stays in the ticket text.
+Pass Jira values only inside the quoted heredoc as JSON strings (escape `"` and `\`), never as command-line arguments: a sprint or status name is Jira data and must not reach the shell. Order the counts by workflow, to-do first and done last. Show the script's output as-is.
+
+- **Counts:** the user's Step 1a tickets in that sprint, before the done filter, counted by Jira status name. Leave out discarded or won't-do tickets, and tickets in the sprint assigned to someone else. The script drops zero counts and shows `Pending Deploy` as `Deploy`. There is no review count: review state stays in the ticket text.
 - The script takes Jira's timestamps as-is and converts them to the local timezone, so an end date stored as 14:00 UTC lands on the right local day.
-- **No active sprint, or no Jira:** skip the bulkhead and say why in Step 8.
+- **No active sprint, no start or end date, no Step 1a tickets, or no Jira:** skip the bulkhead and say why in Step 8.
 - **No `python3`:** draw it by hand to the same rules: the current Mon–Fri only; `●` working day done, `◉` today, `○` working day left, `·` outside the sprint, `⚑` the sprint's last day (replacing that day's mark, or after `╌` as its own labelled day when it's in a later week); "days left" counts working days after today up to and including the last day.
 
 ## Step 2 — Check git activity

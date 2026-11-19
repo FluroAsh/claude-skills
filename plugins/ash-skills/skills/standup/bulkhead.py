@@ -2,20 +2,28 @@
 """Render the standup sprint bulkhead.
 
 Usage:
-  bulkhead.py --name "Team Sprint 22" --start 2026-11-10T23:00:00.000Z \
-      --end 2026-11-23T14:00:00.000Z --count "To Do=2" --count "In Progress=3" \
-      [--today 2026-11-19]
+  bulkhead.py <<'JSON'
+  {"name": "Team Sprint 22", "start": "2026-11-10T23:00:00.000Z",
+   "end": "2026-11-23T14:00:00.000Z", "counts": [["To Do", 2], ["In Progress", 3]]}
+  JSON
   bulkhead.py --test
 
-Sprint dates are Jira ISO timestamps, converted to the local timezone before
-taking the date. Counts are passed in display order; zero counts are dropped.
+Input is JSON on stdin so Jira text never passes through the shell. Optional
+"today": "YYYY-MM-DD". Sprint dates are Jira ISO timestamps, converted to the
+local timezone before taking the date. Counts are in display order; zero
+counts are dropped.
 """
-import argparse
 import datetime as dt
+import json
 import sys
 
 LABELS = {"pending deploy": "Deploy"}
 RULE = "─" * 52
+
+
+def clean(text):
+    """Jira text is untrusted: keep it on one line and unable to close the code fence."""
+    return " ".join(str(text).replace("`", "'").split())
 
 
 def local_date(iso):
@@ -40,7 +48,7 @@ def workdays_after(today, last):
 def render(name, start, end, counts, today):
     left = workdays_after(today, end)
     lines = [
-        f"{name.upper()} · {today:%a} {today.day} {today:%b} · {left} day{'s' if left != 1 else ''} left",
+        f"{clean(name).upper()} · {today:%a} {today.day} {today:%b} · {left} day{'s' if left != 1 else ''} left",
         RULE,
     ]
     monday = today - dt.timedelta(days=today.weekday())
@@ -63,10 +71,11 @@ def render(name, start, end, counts, today):
     mark_row = " " + "────".join(marks)
     if end > week[-1]:
         flag_label = f"{end:%a}" if (end - week[-1]).days < 7 else f"{end:%a} {end.day} {end:%b}"
-        label_row += " " * 7 + flag_label  # puts the label's middle letter over ⚑, like the day labels
+        # 7 spaces puts the label's middle letter over ⚑, like the day labels.
+        label_row += " " * 7 + flag_label
         mark_row += "╌" * 9 + "⚑ sprint ends"
     lines += [label_row, mark_row, RULE]
-    shown = [f"{LABELS.get(s.lower(), s)} {n}" for s, n in counts if n > 0]
+    shown = [f"{LABELS.get(clean(s).lower(), clean(s))} {n}" for s, n in counts if n > 0]
     if shown:
         lines.append(" │ ".join(shown))
     return "\n".join(lines)
@@ -87,23 +96,21 @@ def test():
     assert last[0].endswith("0 days left"), last[0]
     assert last[3] == " ●────⚑────·────·────·", last[3]
     assert workdays_after(dt.date(2026, 11, 20), dt.date(2026, 11, 23)) == 1  # Fri → Mon skips the weekend
-    assert local_date("2026-11-19T10:00:00.000+1100") == dt.date(2026, 11, 19)
+    stamp = dt.datetime(2026, 11, 19, 10, tzinfo=dt.timezone(dt.timedelta(hours=11)))
+    assert local_date("2026-11-19T10:00:00.000+1100") == stamp.astimezone().date()
+    assert clean("Sprint\n```\n[x](y)") == "Sprint ''' [x](y)"
     print("ok")
 
 
 def main():
     if sys.argv[1:] == ["--test"]:
         return test()
-    p = argparse.ArgumentParser()
-    p.add_argument("--name", required=True)
-    p.add_argument("--start", required=True)
-    p.add_argument("--end", required=True)
-    p.add_argument("--count", action="append", default=[], help='"Status=N", in display order')
-    p.add_argument("--today", help="YYYY-MM-DD, default today")
-    a = p.parse_args()
-    counts = [(c.rsplit("=", 1)[0].strip(), int(c.rsplit("=", 1)[1])) for c in a.count]
-    today = dt.date.fromisoformat(a.today) if a.today else dt.date.today()
-    print(render(a.name, local_date(a.start), local_date(a.end), counts, today))
+    data = json.load(sys.stdin)
+    if not data.get("start") or not data.get("end"):
+        sys.exit("bulkhead: the sprint has no start or end date")
+    counts = [(s, int(n)) for s, n in data.get("counts", [])]
+    today = dt.date.fromisoformat(data["today"]) if data.get("today") else dt.date.today()
+    print(render(data.get("name", "Sprint"), local_date(data["start"]), local_date(data["end"]), counts, today))
 
 
 if __name__ == "__main__":
