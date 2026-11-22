@@ -56,7 +56,7 @@ Draft dot-point bullets grouped by ticket, following the same conventions as the
 - Consolidate — group related commits into a small number of high-level outcome bullets, not one per commit. Aim for ~3 per ticket.
 - Write generic outcome statements, not implementation blow-by-blow (e.g. "Reworked auth session handling", not which header/prop changed).
 - Exclude standing ceremonies (standup, planning, refinement, retro) — only call out notable one-off meetings.
-- **Fold vs nest**: one bullet of substance → fold inline (`- **[{PROJECT_KEY}-XXXX](...)** - description`); more than one → nest as a header with indented sub-bullets.
+- **Ticket heading**: each ticket opens with `- **[{PROJECT_KEY}-XXXX]({JIRA_SERVER}/browse/{PROJECT_KEY}-XXXX)** | {ticket title}`, the title being the Jira summary without its `FE:`/`BE:` prefix, so the day reads at a glance. Cap the title at about 45 characters (the length of "Add Interconnect Ports to an existing LAG"): drop a trailing parenthetical first, then cut at a word boundary, drop a dangling "the"/"and"/"for"-style word, and end with `…`. The work goes in indented sub-bullets under it, even when there's only one.
 - Every ticket reference must be a markdown link: `[{PROJECT_KEY}-XXXX]({JIRA_SERVER}/browse/{PROJECT_KEY}-XXXX)`.
 - **Code reviews** go in one plain `Code reviews` bullet with a nested line per PR: `Approved {author}'s [#N](url) (**KEY**, short outcome)`. A review is not a commit, so don't fold it under a ticket heading unless it is the user's own ticket.
 - **Slack** items become a single short outcome bullet (e.g. "Raised X with the team in #channel"), never a transcript.
