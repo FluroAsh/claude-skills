@@ -26,15 +26,21 @@ def clean(text):
     return " ".join(str(text).replace("`", "'").split())
 
 
-def local_date(iso):
+def last_day(stamp):
+    """A sprint end stamped before noon ends at the close of the day before."""
+    day = stamp.date()
+    return day - dt.timedelta(days=1) if stamp.time() < dt.time(12) else day
+
+
+def local_date(iso, is_end=False):
     iso = iso.strip().replace("Z", "+00:00")
     # Jira sends +1000 without a colon, which fromisoformat rejects before 3.11.
     if len(iso) > 5 and iso[-5] in "+-" and iso[-3] != ":":
         iso = iso[:-2] + ":" + iso[-2:]
     parsed = dt.datetime.fromisoformat(iso)
-    if parsed.tzinfo is None:
-        return parsed.date()
-    return parsed.astimezone().date()
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone()
+    return last_day(parsed) if is_end else parsed.date()
 
 
 def workdays_after(today, last):
@@ -98,6 +104,8 @@ def test():
     assert workdays_after(dt.date(2026, 11, 20), dt.date(2026, 11, 23)) == 1  # Fri → Mon skips the weekend
     stamp = dt.datetime(2026, 11, 19, 10, tzinfo=dt.timezone(dt.timedelta(hours=11)))
     assert local_date("2026-11-19T10:00:00.000+1100") == stamp.astimezone().date()
+    assert last_day(dt.datetime(2026, 11, 25, 1)) == dt.date(2026, 11, 24)  # Jira's 14:00Z end is 01:00 AEDT Wed
+    assert last_day(dt.datetime(2026, 11, 24, 17)) == dt.date(2026, 11, 24)
     assert clean("Sprint\n```\n[x](y)") == "Sprint ''' [x](y)"
     print("ok")
 
@@ -110,7 +118,7 @@ def main():
         sys.exit("bulkhead: the sprint has no start or end date")
     counts = [(s, int(n)) for s, n in data.get("counts", [])]
     today = dt.date.fromisoformat(data["today"]) if data.get("today") else dt.date.today()
-    print(render(data.get("name", "Sprint"), local_date(data["start"]), local_date(data["end"]), counts, today))
+    print(render(data.get("name", "Sprint"), local_date(data["start"]), local_date(data["end"], is_end=True), counts, today))
 
 
 if __name__ == "__main__":
