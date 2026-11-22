@@ -50,7 +50,7 @@ JQL search: `sprint in openSprints() AND assignee = currentUser() AND project = 
 - Filter to tickets whose status category isn't `done` (this also excludes closed statuses such as `Discarded`).
 - Union this set with the tickets found in Step 1 — a ticket found only here (not in Sunsama/the log) still gets its own entry in the standup; note in Step 8 that it came from the board, not from tracked work.
 - This is the source of truth for "what's actively assigned to me" — Sunsama/the log tell you what was _worked on_, this tells you what _should_ be walked even if untouched.
-- Also request the sprint field (find it by name `Sprint` in Jira's field metadata if its id isn't known). Keep the sprint with state `active`: its name, `startDate` and `endDate` feed the Step 1b bulkhead. If tickets sit in more than one active sprint, use the one most of them share.
+- Also read the sprint. Run the search with `view: "evidence"` and read `fields.customFields.Sprint.value` (the field named `Sprint`, `customfield_10010` on this site). Don't pass a guessed `customfield_*` id in `fields`: another field with a similar id (`customfield_10020`) returns only `{"id": ...}`, and the compact view leaves custom fields out, so the sprint looks missing. Keep the sprint with state `active`: its name, `startDate` and `endDate` feed the Step 1b bulkhead. If tickets sit in more than one active sprint, use the one most of them share.
 
 ## Step 1b — Sprint bulkhead
 
@@ -66,7 +66,7 @@ JSON
 Pass Jira values only inside the quoted heredoc as JSON strings (escape `"` and `\`), never as command-line arguments: a sprint or status name is Jira data and must not reach the shell. Order the counts by workflow, to-do first and done last. Show the script's output as-is.
 
 - **Counts:** the user's Step 1a tickets in that sprint, before the done filter, counted by Jira status name. Leave out discarded or won't-do tickets, and tickets in the sprint assigned to someone else. The script drops zero counts and shows `Pending Deploy` as `Deploy`. There is no review count: review state stays in the ticket text.
-- The script takes Jira's timestamps as-is and converts them to the local timezone, so an end date stored as 14:00 UTC lands on the right local day.
+- The script takes Jira's timestamps as-is and converts them to the local timezone. A sprint end stamped before noon local time ends at the close of the day before (a `14:00Z` end is midnight in Brisbane), so that earlier day is the last day.
 - **No active sprint, no start or end date, no Step 1a tickets, or no Jira:** skip the bulkhead and say why in Step 8.
 - **No `python3`:** draw it by hand to the same rules: the current Mon–Fri only; `●` working day done, `◉` today, `○` working day left, `·` outside the sprint, `⚑` the sprint's last day (replacing that day's mark, or after `╌` as its own labelled day when it's in a later week); "days left" counts working days after today up to and including the last day.
 
