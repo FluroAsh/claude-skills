@@ -1,9 +1,11 @@
 ---
 name: create-pr
-description: Creates or updates a GitHub pull request via gh with a brief generated description. Use when the user wants to open a PR, create a pull request, push and open a PR, or refresh an existing PR's description.
+description: Creates or updates a GitHub pull request via gh, with a concise description written for the reviewer - plain-English prose, tables or a diagram only where they make the change easier to see, and the current state only. Use when the user wants to open a PR, create a pull request, push and open a PR, or refresh or tidy up an existing PR's description.
 ---
 
 Open a GitHub pull request for the current branch, or update the one that already exists.
+
+The description is for a reviewer who knows the codebase and has the diff open: usually a frontend engineer or QA, sometimes a backend engineer when the change touches an API or contract. Write for that one reader; don't address sections to other audiences. Its job is to tell them what changed in behaviour, why, and what to look at closely. The diff already shows which files changed and how.
 
 ## Environment
 
@@ -26,7 +28,7 @@ The commits and diff are the default source. Reach for Jira, Confluence or other
 - **The change is stacked on, depends on, or revisits an earlier PR** — `gh pr view {number|branch} --json title,body,url,state`; to find past PRs for the same ticket, `gh pr list --state all --search "{TICKET}" --json number,title,url,state`.
 - **The ticket points to a Confluence page that defines the behaviour being implemented** (a spec or design doc, not a general wiki link) — read that page (e.g. `getConfluencePage`), and take only the section that applies.
 
-Use what you read to sharpen the one-line summary and the bullets, and to link related tickets and PRs. Don't paste ticket or page content into the body. If the Atlassian MCP isn't connected, carry on without it.
+Use what you read to sharpen the summary and the bullets, and to link related tickets and PRs. Don't paste ticket or page content into the body. If the Atlassian MCP isn't connected, carry on without it.
 
 ## Step 2 — Title
 
@@ -34,35 +36,85 @@ Match the repo's own convention: read `gh pr list --state merged --limit 5 --jso
 
 ## Step 3 — Body
 
-If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep its headings. Otherwise use:
+If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep all its headings, even ones with nothing to add (answer them in a few words, e.g. "No visual change", or leave their checkboxes). Replace its italic placeholder hints rather than keeping them, and where a hint conflicts with these rules (e.g. "list the commits"), these rules win. The ticket heading and the sections below go first under its description heading. Otherwise use them as they are:
 
 ```markdown
 ### [{TICKET}]({JIRA_SERVER}/browse/{TICKET})
 
-{One sentence: the intent of the change.}
+{One or two sentences: the problem, and what is true once this merges.}
 
 ### What changed
 
-- {2–4 bullets at feature or area level}
+- **{The behaviour that changed, in plain words.}** {At most two short sentences: where it lives if that isn't obvious, and why.}
+
+### Worth a close look
+
+- **{The risky or subtle part, in plain words.}** {Where it lives (one component or function name), and the edge case to check.}
 
 ### Notes
 
-{Only non-obvious engineering context: an environment caveat, a side effect, a migration step.}
+{Only non-obvious engineering context: an environment caveat, a side effect, a migration step. Optional.}
 ```
 
-- Omit the ticket heading when there is no ticket (use the bare key as the heading when the Jira site isn't known), and `### Notes` when there is nothing to put in it.
-- Brevity is the priority. A large diff does not justify more bullets: group related changes, and don't list files, helpers or sub-components unless one matters to the reviewer on its own.
-- Leave out test additions unless tests are the deliverable or encode behaviour the reviewer must know. No QA steps, test plans or verification checklists.
-- Add a `### Behaviour` section (one small Mermaid chart or table) only when branching rules or config mappings would otherwise take several sentences. Check it against the code; if unsure, leave it out.
+Everything the skill adds sits under the template's description heading, in this order: ticket heading, summary, What changed, Worth a close look, the optional sections below, Notes, then the collapsed complementary material. The template's other headings follow as the template has them.
+
+**Worth a close look** is what replaces a file list: 1–3 bullets that send the reviewer to where the risk is (timing, a shared API, an edge case the tests lean on). Name just enough code to find it. Leave it out for a change with nothing subtle in it.
+
+Optional sections, each only when it earns its place, in this order after **Worth a close look**:
+
+- **Impact** (name it for what's affected, e.g. "Analytics impact"): keep it visible, since QA tests from it. A table, when the change alters what other people see or rely on (UI states, analytics, an API, config) across several cases. One row per case, with Before and After columns against the base branch.
+- **Decisions**: the calls a reviewer might question, as a table (`Decision | Why`), one short line of reasoning each. Not every choice made while building. Rationale isn't something to test, so it usually belongs in the collapsed block at the end; keep it visible only when the PR is mainly a design choice.
+- **Testing**: one or two sentences on what the tests prove and anything checked by hand, and where. When the template has a testing section, this goes there instead, under its checkboxes, and not under the description too.
+- **Complementary material** last, in a collapsed `<details>` with a plain summary line named for its content ("Edge cases and follow-ups"), not for an audience: out of scope, follow-ups, and secondary detail. It's there for whoever wants it but isn't the first thing a reviewer reads.
+
+### Match the shape to the PR
+
+Before drafting, read the closest example in `examples/` (indexed in `examples/README.md`) and take its shape. A small fix needs two sentences; don't add sections because this skill or the template lists them.
+
+| PR type | Usually needs |
+| --- | --- |
+| Small fix | The summary and one bullet |
+| Feature behind a flag | A flag callout, What changed, Worth a close look, screenshots |
+| Change others rely on (analytics, events, permissions, data) | A callout on the effect, What changed, a visible impact table |
+| Refactor | What stays the same and how that's proven; any place the old copies had drifted |
+| Dependency upgrade or security bump | The behaviour differences and what was held back; a bare bump is one sentence |
+| CI, build or dev tooling | What changes for developers, how it was checked, how to roll back |
+| SDK, API client or contract | A stack note when stacked, a contract table a backend reviewer can check |
+| Removing a flag, dead code or a legacy path | Why it's safe now, and the merge precondition as a callout |
+
+Risk facts go up front when they exist, as one callout line each rather than a section: a feature flag and where it's on, a merge precondition or ordering, how to roll back.
+
+### Writing rules
+
+- **Plain English first.** Short sentences, one idea each, in the active voice: "The booking now saves once the guest picks a date", not "`saveDraft`, run by a watcher on `selectedDate`, saves…". Code names go in backticks where the reviewer needs to recognise them, never as a chain of clauses.
+- **Guide by change, not by file.** Lead each bullet with the behaviour, then work where it lives into the sentence if that isn't obvious ("…, handled in the checkout page"), rather than tacking on "Lives in `File.vue`". No "Where to look" or file-by-file lists, and no file names in testing notes. Assume the reviewer knows the codebase.
+- **Explain the why, not the mechanics.** Leave out how the code does it (watchers, getters, which helper computes a flag, refactors in passing) unless that mechanism is what needs reviewing. Then name it once, in one sentence; a new option on a shared API is a fair example ("`useCheckout` takes an optional `onRetry`, so other callers are unchanged").
+- **Define a term once,** before or where it's first used (never in a later section), and use the same word every time after.
+- **Brevity over completeness.** A large diff does not justify more bullets: group related changes. 2–5 bullets is normal. One point per paragraph.
+- **Tables and diagrams only where they help.** A table for three or more parallel cases (before/after, options, mappings). A small Mermaid chart only for a flow or state change that would take a paragraph to describe, and only if it shows every branch the reviewer has to check; a happy-path-only diagram hides the cases that matter. Never both for the same content, and never forced onto a simple change. Check either against the code; if unsure, leave it out.
+- **Callouts for emphasis, sparingly.** A GitHub alert (`> [!IMPORTANT]`, `> [!WARNING]`, `> [!NOTE]`) for the one or two things a reviewer must not miss: a behaviour change others rely on, a deploy or data caveat, a merge dependency. Put it straight after the summary, in one or two sentences. Never for routine content, and never more than two.
+- **Emojis as signposts, not decoration.** One on a section heading can help a reviewer scan (🔍 Worth a close look, 📊 Impact, ⚖️ Decisions). None in bullets, table cells or prose, and leave the repo template's own headings as they are.
+- **No test file lists, QA scripts or verification checklists.** Testing notes say what is covered, not how to rerun it.
+- Omit the ticket heading when there is no ticket (use the bare key as the heading when the Jira site isn't known), and any of this skill's sections with nothing in it. A template's own headings stay.
 - Stacked PR (the base is another feature branch): link the parent PR, found with `gh pr list --head {base} --json url`, not the branch.
-- Screenshots: `gh` cannot upload images. For a visual change, add an empty `### Screenshots` heading and tell the user to drag the images into the PR on GitHub.
+- Screenshots: `gh` cannot upload images. For a visual change, leave the screenshots heading empty (the template's, or a `### Screenshots` you add) and tell the user to drag the images in on GitHub.
 - Domain terms: if a glossary skill for the company's domain is installed, use product and domain terms as it defines them.
+
+## Step 3a — Critical pass
+
+Before writing anything to GitHub, reread the draft as the reviewer would, cold, and fix it:
+
+1. **Could someone outside this conversation follow it?** Remove context only the author has: review history, earlier attempts, and wording that compares against an earlier revision of the PR ("now uses `whenever`", "after review"). Describing how behaviour differs from the base branch ("no longer sends…") is the point of the PR and stays.
+2. **Is every sentence current?** It describes the branch as it is. A fixed review finding, a reverted approach or a superseded decision is deleted, not marked as changed. That includes test notes ("rather than a mock") that only make sense against an earlier revision.
+3. **Is every sentence needed?** If the diff, the ticket or the title already says it, cut it. If a paragraph makes several points, split it or cut it down to the one that matters.
+4. **Does it read cleanly aloud?** Rewrite any sentence with nested clauses, a run of code names, or a subject the reader has to hunt for.
+5. **Is the format right?** A paragraph listing parallel cases becomes a table. A table with one row becomes a sentence. A diagram that repeats the bullets goes.
 
 ## Step 4 — Create or update
 
 Write the body to a temp file, and pass the title in single quotes (escaping any `'` in it), so backticks and `$(...)` in either are never run by the shell.
 
-When updating, keep any section of the existing body the new one doesn't cover (screenshots, reviewer notes).
+**Updating rewrites the description to the current state.** Write the sections this skill owns afresh from the diff and commits, as if no description existed, then mine the old body only for facts the diff can't show (manual testing, decisions and their reasons, links, terms the team already uses). Don't paraphrase its sentences or keep its layout because it was there, and don't append to it or patch one line. Run Step 3a on the whole result. Keep a section someone else added (screenshots, reviewer notes, a bot's summary) only while it's still true.
 
 ```bash
 git push -u origin HEAD                 # only when the branch has no upstream or is ahead of it
