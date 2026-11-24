@@ -36,7 +36,7 @@ Match the repo's own convention: read `gh pr list --state merged --limit 5 --jso
 
 ## Step 3 — Body
 
-If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep all its headings, even ones with nothing to add (answer them in a few words, e.g. "No visual change", or leave their checkboxes). Replace its italic placeholder hints rather than keeping them, and where a hint conflicts with these rules (e.g. "list the commits"), these rules win. The ticket heading and the sections below go first under its description heading. Otherwise use them as they are:
+The repo's PR template is the base every description is built on; this skill's sections and examples shape what goes inside it, with your own judgement for the rest. If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep all its headings, even ones with nothing to add (answer them in a few words, e.g. "No visual change", or leave their checkboxes). Replace its italic placeholder hints rather than keeping them, and where a hint conflicts with these rules (e.g. "list the commits"), these rules win. The ticket heading and the sections below go first under its description heading. Otherwise use them as they are:
 
 ```markdown
 ### [{TICKET}]({JIRA_SERVER}/browse/{TICKET})
@@ -69,11 +69,11 @@ Optional sections, each only when it earns its place, in this order after **Wort
 
 ### Match the shape to the PR
 
-Before drafting, read the closest example in `examples/` (indexed in `examples/README.md`) and take its shape. A small fix needs two sentences; don't add sections because this skill or the template lists them.
+Before drafting, read the closest example in `examples/` (indexed in `examples/README.md`) and take its shape. A small fix needs two sentences; don't add sections because this skill or the template lists them. Screenshots are the exception to keeping it short: whatever the type, a change that shows on screen gets them as evidence.
 
 | PR type | Usually needs |
 | --- | --- |
-| Small fix | The summary and one bullet |
+| Small fix | The summary and one bullet, plus before/after screenshots when the fix shows on screen |
 | Feature behind a flag | A flag callout, What changed, Worth a close look, screenshots |
 | Change others rely on (analytics, events, permissions, data) | A callout on the effect, What changed, a visible impact table |
 | Refactor | What stays the same and how that's proven; any place the old copies had drifted |
@@ -97,7 +97,8 @@ Risk facts go up front when they exist, as one callout line each rather than a s
 - **No test file lists, QA scripts or verification checklists.** Testing notes say what is covered, not how to rerun it.
 - Omit the ticket heading when there is no ticket (use the bare key as the heading when the Jira site isn't known), and any of this skill's sections with nothing in it. A template's own headings stay.
 - Stacked PR (the base is another feature branch): link the parent PR, found with `gh pr list --head {base} --json url`, not the branch.
-- Screenshots: `gh` cannot upload images. For a visual change, leave the screenshots heading empty (the template's, or a `### Screenshots` you add) and tell the user to drag the images in on GitHub.
+- **Screenshots are evidence.** Any change a user can see gets them, bug fixes and copy changes included: before and after for a fix or a changed screen, each state for a feature (flag on and off, empty, error). A one-line caption under each says what to look at. They're the reviewer's and QA's visual reference, so short descriptions still carry them. Only a change with nothing on screen (logic, analytics, CI, types, tests) says "No visual change".
+- `gh` cannot upload images. If a screenshot skill is installed, use it to capture and attach them; otherwise leave the screenshots heading in place (the template's, or a `### Screenshots` you add) with the captions as placeholders, and tell the user which shots to drag in on GitHub.
 - Domain terms: if a glossary skill for the company's domain is installed, use product and domain terms as it defines them.
 
 ## Step 3a — Critical pass

@@ -1,10 +1,10 @@
 # Example descriptions
 
-Fictional PRs for a made-up booking app, one per common PR type. Read the one closest to the PR you're describing, and take its shape, not its wording. Each shows the description section only; a repo template's other headings (screenshots, dependencies, testing, checklist) still apply around it.
+Fictional PRs for a made-up booking app, one per common PR type. Read the one closest to the PR you're describing, and take its shape, not its wording. Each shows the description section only. The repo's PR template is the base: its other headings (screenshots, dependencies, testing, checklist) still apply around these, and screenshots go in its screenshots section.
 
 | File | PR type | What it shows |
 | --- | --- | --- |
-| `bug-fix.md` | Small fix | A two-line description is enough; no sections |
+| `bug-fix.md` | Small fix | A two-line description is enough; no sections, but before/after screenshots |
 | `feature-flagged.md` | User-facing feature behind a flag | Flag and rollout callout, behaviour bullets, Worth a close look, screenshots |
 | `behaviour-change.md` | Change others rely on (analytics, events, permissions) | Callout up top, a visible before/after table, rationale collapsed |
 | `refactor.md` | No intended behaviour change | Saying what stays the same and how that's proven |
