@@ -27,6 +27,7 @@ If these skills already exist as loose files in `~/.claude/skills` or `~/.claude
 | `weekly-work-wrap` | End-of-week wrap-up of the current log, with an optional Tech Lead Review |
 | `daily-work-wrap` | Single-day catch-up for days you forgot to log |
 | `standup` | Standup prep. Read-only, chat output only. `--after` compacts pasted meeting notes into the day's standup note |
+| `progress` | A mentor-style review of your day, or the last seven days with `--week`: replays wins, good calls and missed chances against your calendar and growth framework, tracks the promises you made, and names the next move. Writes a self-cleaning HTML report; the mentor file only on confirmation |
 | `compact-notes` | Condenses a note, one section of it, or pasted text, keeping decisions, owners and open questions. Works on its own or loaded by other skills |
 | `create-pr` | Opens or updates a GitHub PR with a brief description |
 | `trace` | Traces an issue across Jira, GitHub, Confluence, Slack and notes, and checks it against your notes. Read-only |
@@ -46,9 +47,9 @@ Invoke skills namespaced, eg: `/ash-skills:standup`.
 | [Obsidian](https://obsidian.md) and its [CLI](https://obsidian.md/help/cli) | Required | All except `create-pr` and `orchestrate` | Vault skills can't read or write notes. Turn on **Settings → General → Command line interface** |
 | git, with `user.name` set | Required | Work-log skills, `standup` | Commits can't be matched to you |
 | Atlassian MCP server (Jira, Confluence) | Required for Jira steps | Work-log skills, `standup`, `trace`, `setup`; optional in `create-pr` | A skill that needs ticket status says so and skips that step. No CLI or API token is used |
-| [GitHub CLI](https://cli.github.com) (`gh`), signed in | Optional | Work-log skills, `standup`, `trace`, `create-pr` | PR and review lookups are skipped; `create-pr` can't run |
-| Slack MCP server | Optional | `daily-work-wrap`, `weekly-work-wrap`, `standup`, `trace` | Slack signal is skipped |
-| [Sunsama](https://www.sunsama.com) MCP server | Optional | Work-log skills, `standup`, `setup` | Skills work from git and your own input. It needs to expose `sunsama://tasks/{date}` and `sunsama://calendar/events/{date}` |
+| [GitHub CLI](https://cli.github.com) (`gh`), signed in | Optional | Work-log skills, `standup`, `progress`, `trace`, `create-pr` | PR and review lookups are skipped; `create-pr` can't run |
+| Slack MCP server | Optional | `daily-work-wrap`, `weekly-work-wrap`, `standup`, `progress`, `trace` | Slack signal is skipped |
+| [Sunsama](https://www.sunsama.com) MCP server | Optional | Work-log skills, `standup`, `progress`, `setup` | Skills work from git and your own input. It needs to expose `sunsama://tasks/{date}` and `sunsama://calendar/events/{date}` |
 
 ## Configuration
 

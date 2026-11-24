@@ -3,13 +3,13 @@
   "author": {
     "name": "Ashley Thompson"
   },
-  "version": "0.5.6",
+  "version": "0.6.0",
   "description": "Shared skills & commands used across my day-to-day workflows",
   "userConfig": {
     "review_context_files": {
       "type": "string",
-      "title": "Tech Lead Review: your goals notes",
-      "description": "Optional. weekly-work-wrap can end with a Tech Lead Review: a short, critical read of your week with one thing to try next week. It measures the week against the notes you list here, so point it at notes describing your career goals, growth areas or role expectations. One or more note paths, vault-relative or absolute, eg: <folder>/Goals.md. Leave empty to turn the review off",
+      "title": "Your goals notes (Tech Lead Review and progress)",
+      "description": "Optional. The notes your work is measured against: weekly-work-wrap's Tech Lead Review and the progress review read them. Point it at notes describing your career goals, growth areas or role expectations, plus an optional mentor file (progress offers to create one). One or more note paths, vault-relative or absolute, eg: <folder>/Goals.md. Leave empty to turn the Tech Lead Review off",
       "multiple": true,
       "default": []
     },
