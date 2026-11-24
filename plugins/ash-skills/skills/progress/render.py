@@ -85,7 +85,7 @@ def t12(hhmm):
 
 def day_label(iso, short=False):
     d = dt.date.fromisoformat(iso)
-    return f"{d:%a}" if short else f"{d:%a} {d.day} {d:%b}"
+    return f"{d:%a} {d.day}" if short else f"{d:%a} {d.day} {d:%b}"
 
 
 def kind_of(m):
@@ -243,7 +243,7 @@ h1{font-size:30px;line-height:1.2;margin:0 0 8px;letter-spacing:-.015em}h2{font-
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-top:16px}
 .read{background:var(--soft)}.read p:last-child{margin:0;font-size:17px}
 .next{border:2px solid var(--accent)}.next h2{margin-bottom:6px}.next p{margin:0 0 4px}.second{color:var(--muted)}
-.s-card{padding:16px 22px 14px}.s-row{display:flex;align-items:center;gap:10px}.s-day{width:34px;flex:none;font-size:12px;color:var(--muted)}
+.s-card{padding:16px 22px 14px}.s-row{display:flex;align-items:center;gap:10px}.s-day{width:44px;flex:none;font-size:12px;color:var(--muted)}
 .s-strip{position:relative;height:34px;margin:0 8px;flex:1}.s-ticks{position:relative;height:18px;margin:0 8px;flex:1}
 .s-axis{position:absolute;left:0;right:0;top:15px;height:4px;border-radius:2px;background:var(--line)}
 .s-blk{position:absolute;top:11px;height:12px;border-radius:4px;background:var(--quiet-bg);border:1px solid var(--line)}
