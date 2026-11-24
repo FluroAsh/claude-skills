@@ -36,7 +36,7 @@ Match the repo's own convention: read `gh pr list --state merged --limit 5 --jso
 
 ## Step 3 — Body
 
-If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep all its headings, even ones with nothing to add (answer them in a few words, e.g. "No visual change", or leave their checkboxes). Replace its italic placeholder hints rather than keeping them, and where a hint conflicts with these rules (e.g. "list the commits"), these rules win. The ticket heading and the sections below go first under its description heading. Otherwise use them as they are:
+The repo's PR template is the base every description is built on; this skill's sections and examples shape what goes inside it, with your own judgement for the rest. If the repo has a PR template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `pull_request_template.md` at the root or in `docs/`), fill that in and keep all its headings, even ones with nothing to add (answer them in a few words, e.g. "No visual change", or leave their checkboxes). Replace its italic placeholder hints rather than keeping them, and where a hint conflicts with these rules (e.g. "list the commits"), these rules win. The ticket heading and the sections below go first under its description heading. Otherwise use them as they are:
 
 ```markdown
 ### [{TICKET}]({JIRA_SERVER}/browse/{TICKET})
