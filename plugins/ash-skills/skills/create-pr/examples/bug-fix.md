@@ -5,5 +5,5 @@ The cancellation banner on the booking summary said "Fees may apply" even when t
 - **The banner reads the booking's fee, not the room type's default.** That's the whole change, in the summary page's banner component.
 
 <!--
-Why this shape: a fix this small needs a sentence of problem and a sentence of result. No Worth a close look, no tables, no Decisions. Testing goes in the template's testing section in one line.
+Why this shape: a fix this small needs a sentence of problem and a sentence of result. No Worth a close look, no tables, no Decisions. Testing goes in the template's testing section in one line. It still gets screenshots, in the template's screenshots section: the summary page before (banner on a free booking) and after (no banner), each with a one-line caption. They're the evidence the fix works.
 -->
