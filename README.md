@@ -27,7 +27,7 @@ If these skills already exist as loose files in `~/.claude/skills` or `~/.claude
 | `weekly-work-wrap` | End-of-week wrap-up of the current log, with an optional Tech Lead Review |
 | `daily-work-wrap` | Single-day catch-up for days you forgot to log |
 | `standup` | Standup prep. Read-only, chat output only. `--after` compacts pasted meeting notes into the day's standup note |
-| `progress` | A mentor-style review of your day, or the last seven days with `--week`: replays wins, good calls and missed chances against your calendar and growth framework, tracks the promises you made, and names the next move. Read-only; writes a self-cleaning HTML report |
+| `progress` | A mentor-style review of your day, or the last seven days with `--week`: replays wins, good calls and missed chances against your calendar and growth framework, tracks the promises you made, and names the next move. Writes a self-cleaning HTML report; the mentor file only on confirmation |
 | `compact-notes` | Condenses a note, one section of it, or pasted text, keeping decisions, owners and open questions. Works on its own or loaded by other skills |
 | `create-pr` | Opens or updates a GitHub PR with a brief description |
 | `trace` | Traces an issue across Jira, GitHub, Confluence, Slack and notes, and checks it against your notes. Read-only |

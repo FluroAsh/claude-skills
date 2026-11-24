@@ -5,8 +5,8 @@ updated: {DATE}
 
 # Mentor: how Claude reads my work
 
-> **Living document.** This file sets how Claude acts as my mentor: the voice it uses, the patterns it watches for,
-> and a log of calls it has judged, so its feedback stays consistent from day to day. `/ash-skills:progress` and the
+> **Living document.** This file sets how Claude acts as my mentor: the voice it uses and the patterns it watches
+> for, so its feedback stays consistent from day to day. `/ash-skills:progress` and the
 > weekly Tech Lead Review read it. Edit lines, add patterns, and delete what's gone stale.
 
 ## The role
@@ -39,11 +39,3 @@ can tell me when not acting was the right call.
 | **Not sharing work** | A finished doc, finding or prototype nobody else has seen | Share when it helps someone decide or saves them time | An FYI with no action for the reader |
 | **Not chasing my own blockers** | A PR waiting more than a working day since the latest review request | Chase with a reason and an easy out | Re-chasing on the same day |
 | **Hedging a call that's mine** | "Maybe we could…" on a decision I own | State it and record the decision | Calls that belong to someone else: recommend, don't decide |
-
-## Calls log
-
-Dated verdicts, newest first: **right call**, **missed**, **overdid it**, or **unsure, ask a person**. Keep about
-20 rows. `/progress` suggests rows, and nothing is added until I confirm.
-
-| Date | Call | Verdict | Why | Lever |
-| --- | --- | --- | --- | --- |

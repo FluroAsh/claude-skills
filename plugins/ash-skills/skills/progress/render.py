@@ -12,8 +12,8 @@ markup allowed in text fields is **bold** and [label](https://link).
 Layout: header and tally, the read, a "shape of the day" strip (one row per
 day in week mode) whose dots jump to the matching moment, the replay (every
 moment in time order), takeaways, first thing next, promises in flight, then
-optional week sections, brag candidates, calls-log suggestions and the
-question to sit with.
+optional week sections and the question to sit with. Achievement-worthy
+wins carry a star.
 
 Files go to $ASH_PROGRESS_DIR, else $XDG_CACHE_HOME/ash-skills/progress, else
 ~/.cache/ash-skills/progress. Every run deletes daily reports from before
@@ -115,7 +115,9 @@ def strip(r, week):
     blocks = r.get("blocks", [])
     if not moments and not blocks:
         return ""
-    lo, hi = 8 * 60 + 30, 18 * 60 + 30
+    times = [mins(m["time"]) for m in moments] + [mins(b[k]) for b in blocks for k in ("start", "end")]
+    lo = max(7 * 60, min(min(times) // 60 * 60, 9 * 60))
+    hi = min(20 * 60, max(-(-max(times) // 60) * 60, 17 * 60))
     outside = [f'{t12(b["start"])}–{t12(b["end"])} {b.get("title", "")}'.strip() for b in blocks
                if mins(b["end"]) <= lo or mins(b["start"]) >= hi]
     outside += [f'{t12(m["time"])} {KINDS[kind_of(m)][0].lower()}' for m in moments if not lo <= mins(m["time"]) <= hi]
@@ -134,9 +136,9 @@ def strip(r, week):
             if KINDS[kind_of(m)][1] and (not week or m.get("day") == day) and lo <= mins(m["time"]) <= hi)
         label = f'<span class="s-day">{day_label(day, short=True)}</span>' if week else ""
         rows.append(f'<div class="s-row">{label}<div class="s-strip"><div class="s-axis"></div>{blk}{pins}</div></div>')
-    ticks = "".join(f'<span style="left:{pos(h * 60):.1f}%">{h % 12 or 12}{"am" if h < 12 else "pm"}</span>' for h in (9, 12, 15, 18))
+    ticks = "".join(f'<span style="left:{pos(h * 60):.1f}%">{h % 12 or 12}{"am" if h < 12 else "pm"}</span>' for h in range(-(-lo // 180) * 3, hi // 60 + 1, 3))
     legend = "".join(f'<span><i class="k-{k}"></i>{KINDS[k][0]}</span>' for k in ("win", "good", "fine", "miss", "signal"))
-    note = f'<span class="s-out">Outside 8:30am–6:30pm: {esc(", ".join(outside))}</span>' if outside else ""
+    note = f'<span class="s-out">Outside {t12(f"{lo // 60}:00")}–{t12(f"{hi // 60}:00")}: {esc(", ".join(outside))}</span>' if outside else ""
     return (f'<section class="card s-card"><p class="eyebrow">Shape of the {"week" if week else "day"}</p>{"".join(rows)}'
             f'<div class="s-row">{"<span class=s-day></span>" if week else ""}<div class="s-ticks">{ticks}</div></div>'
             f'<div class="s-legend">{legend}<span><i class="k-blk"></i>Planned block</span>{note}</div></section>')
@@ -146,10 +148,13 @@ def replay(r, week):
     out, last_day = [], None
     for i, m in enumerate(r.get("moments", [])):
         k = kind_of(m)
+        if week and k not in ("win", "miss", "signal"):
+            continue
         if week and m.get("day") != last_day:
             last_day = m.get("day")
             out.append(f'<div class="dayhead">{day_label(last_day)}</div>')
-        tag = "" if k == "plan" else f'<span class="k">{KINDS[k][0]}{" · " + esc(m["lever"]) if m.get("lever") else ""}</span>'
+        star = '<span class="star" title="Achievement-worthy">★</span>' if m.get("keep") else ""
+        tag = "" if k == "plan" else f'<span class="k">{KINDS[k][0]}{" · " + esc(m["lever"]) if m.get("lever") else ""}</span>{star}'
         out.append(f'<div id="m{i}" class="m m-{k}"><span class="t">{t12(m["time"])}</span><span class="dot"></span>'
                    f'<div class="body">{tag}{md(m.get("text", ""))}</div></div>')
     return f'<div class="tape">{"".join(out)}</div>' if out else ""
@@ -203,15 +208,6 @@ def week_sections(r):
 
 def extras(r):
     parts = []
-    if r.get("keep"):
-        rows = "".join(f'<li>{md(k["text"])} <span class="tag">{md(k.get("goal", ""))} · {md(k.get("lever", ""))}</span></li>' for k in r["keep"])
-        parts.append(f'<section class="card"><h2>Worth keeping</h2><ul>{rows}</ul></section>')
-    if r.get("calls"):
-        rows = "".join(
-            f'<tr><td>{md(c["call"])}</td><td><span class="pill p-{"kept" if str(c.get("verdict", "")).lower().startswith("right") else "risk"}">{md(c["verdict"])}</span></td>'
-            f'<td>{md(c.get("why", ""))}</td></tr>' for c in r["calls"])
-        parts.append(f'<section class="card"><h2>Suggested for the calls log</h2><p class="muted">Suggestions only. Nothing is written until you confirm.</p>'
-                     f'<div class="scroll"><table><thead><tr><th>Call</th><th>Verdict</th><th>Why</th></tr></thead><tbody>{rows}</tbody></table></div></section>')
     if r.get("question"):
         parts.append(f'<section class="card"><h2>A question to sit with</h2><p class="q">{md(r["question"])}</p></section>')
     if r.get("reference"):
@@ -286,7 +282,7 @@ thead th{border-top:0;font-size:12px;color:var(--muted);font-weight:600}.scroll{
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
 ul{margin:0;padding-left:18px}li{margin:4px 0}
 .tag{display:inline-block;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-left:4px}
-.q{margin:0;font-style:italic}footer{color:var(--muted);font-size:13px;padding:16px 4px 0}
+.q{margin:0;font-style:italic}.star{color:var(--fine);margin-right:6px}footer{color:var(--muted);font-size:13px;padding:16px 4px 0}
 @media(max-width:640px){.tape{padding-left:22px}.tape:before{left:10px}.dayhead{margin-left:-22px}
 .m .t{position:static;text-align:left;display:block;margin-bottom:2px;width:auto}.m .dot{left:-18px;top:30px}.s-out{margin-left:0}h1{font-size:24px}}
 """
