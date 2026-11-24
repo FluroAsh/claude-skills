@@ -34,6 +34,8 @@ Ask one question at a time, only about values that are missing, ambiguous, or a 
 
 For a missing folder or template, offer to leave it blank (the skills then ask when they need it) or take a path from the user.
 
+**Mentor file (optional).** If `review_context_files` is set but none of its notes is a mentor file (frontmatter `type: mentor`, or an H1 starting `# Mentor`), offer to create one from `${CLAUDE_PLUGIN_ROOT}/skills/progress/mentor-template.md`, following the `progress` skill's "Mentor file" steps 1–2. If the user says yes, add its path to `review_context_files` in Step 5's **Will save** list. A skip leaves the list as it is. `progress` makes the same offer on its first run, so this question is optional.
+
 ## Step 5 — Confirm
 
 Store every resolved value, including layout paths that match the convention and the Jira values. Show two lists, **Will save** (key: new value, with the old value if it changes) and **Will clear** (keys the user asked to blank), and ask to confirm. Skip keys whose stored value already matches. If nothing changes, say so and stop.
