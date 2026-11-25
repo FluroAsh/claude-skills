@@ -285,6 +285,7 @@ Try next week
 
 ## Guidelines
 
+- **Humanize prose** — run drafted prose through `ash-skills:humanizer` (embedded mode) before showing or writing it. Keep names, numbers, links and this skill's format. Skip the AI-free Reflection: it's the user's own words.
 - **Obsidian CLI first** for all vault reads/writes (`obsidian vault='{VAULT_NAME}' ...`) — fall back to Read/Edit only if CLI fails
 - **Do not fabricate detail** — if daily entries don't support a bullet, don't invent one
 - **No ceremony bullets** — standup, planning, refinement, retro and similar recurring ceremonies are too standard to justify a line in the daily entries or Achievements; only call out a meeting if it was a notable one-off

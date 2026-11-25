@@ -78,6 +78,7 @@ Briefly confirm to the user:
 
 ## Guidelines
 
+- **Humanize prose** — run drafted prose through `ash-skills:humanizer` (embedded mode) before showing or writing it. Keep names, numbers, links and this skill's format.
 - **Obsidian CLI first** for vault reads/writes (`obsidian vault='{VAULT_NAME}' ...`) — fall back to Read/Edit only if CLI fails
 - **Do not fabricate detail** — if there's no commit/note to support a bullet, ask rather than invent one
 - **Don't touch other sections** — this skill only writes today's daily entry (and, narrowly, today's ticket statuses). Leave Achievements, Goals, Brain Dump, AI-free Reflection, and next week's seeding alone; that's the `weekly-work-wrap` skill's job
