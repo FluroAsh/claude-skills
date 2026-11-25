@@ -39,7 +39,7 @@ Diff with `refs/review/<N>/base...refs/review/<N>/head`. Before going on, check 
 Write it for a reviewer who hasn't seen the ticket:
 
 - **In one line**: what the PR achieves, and the epic or larger effort it belongs to.
-- **What changed**: numbered groups by concern (new library code, schemas, app callers moved over, code deleted, behaviour fixes). Each group names its main files in backticks.
+- **What changed**: a table with one row per group of changes by concern (new library code, schemas, app callers moved over, code deleted, behaviour fixes): `# | Concern | Change | Main files`, files in backticks.
 - **What users notice**: concrete behaviour changes, or "nothing" when it is a pure refactor.
 - **Why it matters**: what it unblocks (linked tickets) and what it removes.
 
@@ -49,12 +49,13 @@ Base every claim on the diff, the PR body or the ticket. If the PR body claims s
 
 Trace each changed component up to the page that renders it. The goal is a URL a reviewer can open.
 
-- **Routes.** Learn the repo's routing convention from its `AGENTS.md` or router setup. With file-based pages (eg `apps/<app>/src/pages/`), tabs are often a query parameter whose key can differ per page, so read the page file for it rather than assuming `tab`. List each view as route, component, and the endpoints it calls.
-- **What to check on each view**: one line per view naming the behaviour the PR changes there.
-- **Environments.** Take base URLs from the team note (`team_context_file`, see `reference/config.md`), the repo's docs or your own notes. Say which environments still run the old code, since they are useful for comparing before and after. Give the PR preview URL if the app has one; otherwise say a local dev server or a deploy is needed.
-- **Ticket and plans**: the PR, the ticket (note any QA label), the epic, linked or blocked tickets, and the Confluence pages from step 1.
-- **API contract**: the OpenAPI links the code cites in `@see` tags, for each endpoint and schema the PR adds or changes.
-- **Code to read first**: a table of about five to eight files, each with one line on why it matters. Include any shared default or config the change inherits silently, such as query defaults or an HTTP serializer.
+Put anything that lists items with the same attributes in a table: routes, environments, links and files. Keep prose for reasoning that doesn't fit a cell.
+
+- **Routes.** Learn the repo's routing convention from its `AGENTS.md` or router setup. With file-based pages (eg `apps/<app>/src/pages/`), tabs are often a query parameter whose key can differ per page, so read the page file for it rather than assuming `tab`. Give one table row per affected view: `Route | Component | Endpoints | What to check`, where the last column names the behaviour the PR changes on that view.
+- **Environments.** Take base URLs from the team note (`team_context_file`, see `reference/config.md`), the repo's docs or your own notes. Use a table, `Environment | URL | Code`, where `Code` says whether it runs the old or new code, since the old ones are useful for comparing before and after. Add a row for the PR preview if the app has one; otherwise say a local dev server or a deploy is needed.
+- **Ticket and plans**: one `Link | What it is` table with the PR, the ticket (note any QA label), the epic, linked or blocked tickets, and the Confluence pages from step 1.
+- **API contract**: a `Method and path or schema | Change | OpenAPI link` table built from the links the code cites in `@see` tags, one row for each endpoint and schema the PR adds or changes.
+- **Code to read first**: a `File | Why it matters` table of about five to eight files. Include any shared default or config the change inherits silently, such as query defaults or an HTTP serializer.
 
 Use `<companyUid>`-style placeholders for IDs. Say which links you didn't open.
 
@@ -66,7 +67,7 @@ Invoke `mattpocock-skills:code-review` with the Skill tool, passing the PR URL. 
 - **Spec**: the Jira ticket from step 1.
 - **Standards sources**: root and per-app or per-lib `AGENTS.md` and `CLAUDE.md`, plus `.claude/rules/*`. These may only exist on disk in a local checkout, not in git. If so, read them there and say so.
 
-Use one sub-agent at most. Give the Standards axis to one background agent with the full brief and smell baseline, and do the Spec axis yourself while it runs. Report the two axes under separate headings, as the skill asks, and end with its one-line summary.
+Use one sub-agent at most. Give the Standards axis to one background agent with the full brief and smell baseline, and do the Spec axis yourself while it runs. Report the two axes under separate headings, as the skill asks, with each axis's findings in a `Severity | File:line | Finding` table, and end with its one-line summary.
 
 ## 5. Humanize, then print
 
