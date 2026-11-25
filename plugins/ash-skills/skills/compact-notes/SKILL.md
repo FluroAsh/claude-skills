@@ -97,6 +97,7 @@ Another skill (e.g. `standup --after`, `dev-note --after`) may load this one; it
 
 ## Rules
 
+- Run the draft through `ash-skills:humanizer` (embedded mode) before showing it. Keep names, numbers, links and the shape in use.
 - Nothing is written without confirmation.
 - `--dry-run` never offers to write.
 - Never touch content outside the source.

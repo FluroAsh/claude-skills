@@ -29,7 +29,8 @@ If these skills already exist as loose files in `~/.claude/skills` or `~/.claude
 | `standup` | Standup prep. Read-only, chat output only. `--after` compacts pasted meeting notes into the day's standup note |
 | `progress` | A mentor-style review of your day, or the last seven days with `--week`: replays wins, good calls and missed chances against your calendar and growth framework, tracks the promises you made, and names the next move. Writes a self-cleaning HTML report; the mentor file only on confirmation |
 | `compact-notes` | Condenses a note, one section of it, or pasted text, keeping decisions, owners and open questions. Works on its own or loaded by other skills |
-| `create-pr` | Opens or updates a GitHub PR with a concise, reviewer-first description, shaped to the PR's type, with examples for common types |
+| `create-pr` | Opens or updates a GitHub PR with a concise, reviewer-first description, shaped to the PR's type, with examples for common types, then humanized |
+| `humanizer` | Rewrites AI-sounding prose so it reads like a person wrote it, keeping what it says. Forked from [blader/humanizer](https://github.com/blader/humanizer) v4.0.0 (MIT). Works on its own, and the skills that draft prose run it before showing or writing it |
 | `trace` | Traces an issue across Jira, GitHub, Confluence, Slack and notes, and checks it against your notes. Read-only |
 | `orchestrate` | Runs a large task with the main agent delegating to subagents. Invoke it yourself; it never triggers on its own |
 

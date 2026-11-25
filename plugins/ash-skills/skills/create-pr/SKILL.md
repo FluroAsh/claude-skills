@@ -111,11 +111,22 @@ Before writing anything to GitHub, reread the draft as the reviewer would, cold,
 4. **Does it read cleanly aloud?** Rewrite any sentence with nested clauses, a run of code names, or a subject the reader has to hunt for.
 5. **Is the format right?** A paragraph listing parallel cases becomes a table. A table with one row becomes a sentence. A diagram that repeats the bullets goes.
 
+## Step 3b — Humanizer pass
+
+After Step 3a, run the prose (summary, bullets, callouts, table cells, Testing and Notes) through `ash-skills:humanizer` in embedded mode. It rewrites wording; it never decides what goes in. Where it conflicts with this skill, this skill wins:
+
+- **Register:** technical and neutral. No opinions or asides, and no detail the diff, commits or ticket don't support.
+- **Leave as written:** headings and their one emoji, alert markers (`> [!NOTE]`), the bold lead of a What changed or Worth a close look bullet, one short informative bold label (**Flag:**, **Held back:**; "Heads up:" goes), a bold defined term, code, links, ticket keys, event and property names, numbers (a range like 1–100 keeps its dash) and table structure.
+- **Contrasts:** keep a not-X-but-Y when the negative half is the base branch's behaviour ("once per load, not per keystroke") or corrects an assumption (`abandoned` read as a drop-off). Rewrite one that only adds weight.
+- **No cutting:** Step 3a decides what stays. Cut only a closing line that repeats the bullet above it.
+
+Then check that no number, name, flag, event, before/after value or risk fact changed, and restore any that did. When updating, cover only sections this skill rewrote, not ones someone else added.
+
 ## Step 4 — Create or update
 
 Write the body to a temp file, and pass the title in single quotes (escaping any `'` in it), so backticks and `$(...)` in either are never run by the shell.
 
-**Updating rewrites the description to the current state.** Write the sections this skill owns afresh from the diff and commits, as if no description existed, then mine the old body only for facts the diff can't show (manual testing, decisions and their reasons, links, terms the team already uses). Don't paraphrase its sentences or keep its layout because it was there, and don't append to it or patch one line. Run Step 3a on the whole result. Keep a section someone else added (screenshots, reviewer notes, a bot's summary) only while it's still true.
+**Updating rewrites the description to the current state.** Write the sections this skill owns afresh from the diff and commits, as if no description existed, then mine the old body only for facts the diff can't show (manual testing, decisions and their reasons, links, terms the team already uses). Don't paraphrase its sentences or keep its layout because it was there, and don't append to it or patch one line. Run Steps 3a and 3b on the whole result. Keep a section someone else added (screenshots, reviewer notes, a bot's summary) only while it's still true.
 
 ```bash
 git push -u origin HEAD                 # only when the branch has no upstream or is ahead of it

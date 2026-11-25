@@ -54,3 +54,5 @@ If there is a note or claim to check, list each statement in it as one of:
 ## Step 5 — Report
 
 In chat: the answer first, in two or three sentences; then the timeline, the validation list, conflicts, sources not checked, and open questions with who could answer each. Offer to update the note; don't do it unasked.
+
+Run the report's prose through `ash-skills:humanizer` (embedded mode) first. Keep names, numbers, links and the timeline's format.

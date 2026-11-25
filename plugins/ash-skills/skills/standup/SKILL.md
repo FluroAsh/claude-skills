@@ -286,6 +286,7 @@ If nothing was inferred, omit this section entirely — including the `---` sepa
 
 ## Guidelines
 
+- **Humanize prose** — run drafted prose through `ash-skills:humanizer` (embedded mode) before showing or writing it. Keep names, numbers, links and this skill's format.
 - **Chat output only** (no flag) — never write to the Obsidian vault, never update Jira, never touch git or GitHub (read-only `gh`/`git log`/Slack search only). This is strictly a read/report skill.
 - **Do not fabricate** — if a ticket has no commits and no notes beyond a generic title, say so plainly rather than inventing detail.
 - **No ceremony bullets** — don't list standup/planning/refinement/retro as "today" items.

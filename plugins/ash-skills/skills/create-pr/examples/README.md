@@ -1,6 +1,6 @@
 # Example descriptions
 
-Fictional PRs for a made-up booking app, one per common PR type. Read the one closest to the PR you're describing, and take its shape, not its wording. Each shows the description section only. The repo's PR template is the base: its other headings (screenshots, dependencies, testing, checklist) still apply around these, and screenshots go in its screenshots section.
+Fictional PRs for a made-up booking app, one per common PR type. Read the one closest to the PR you're describing, and take its shape, not its wording. Each shows the description section only, kept plain in the way the humanizer (Step 3b) steers towards, so new examples stay that way. The repo's PR template is the base: its other headings (screenshots, dependencies, testing, checklist) still apply around these, and screenshots go in its screenshots section.
 
 | File | PR type | What it shows |
 | --- | --- | --- |
