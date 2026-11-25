@@ -4,7 +4,7 @@ Optional, macOS-specific. No skill depends on these: `standup --after` creates a
 
 ## Daily standup note
 
-`create-standup-note.sh` creates the day's standup note (`MM-DD-YY.md`) from the standup template on weekdays. It does nothing at weekends and never overwrites an existing note.
+`create-standup-note.sh` creates the day's standup note (`YYYY/MM - Month/MM-DD-YY.md` inside the folder) from the standup template on weekdays. It does nothing at weekends and never overwrites an existing note.
 
 ```sh
 ./create-standup-note.sh "<vault>/10 - Meetings/Standup" "<vault>/00 - System/Templates/Standup Template.md"

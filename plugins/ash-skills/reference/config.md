@@ -37,7 +37,7 @@ All paths are vault-relative. `{YEAR}` is the four-digit year.
 | Weekly logs | `weekly_log_folder` | `10 - Meetings/Weekly Work Logs/{YEAR}/` |
 | Weekly log filename | `log_filename_format` | Inferred from files already in the weekly log folder; empty folder: `MM-DD-YY.md`. Dated by the week's Monday |
 | Weekly log template | `weekly_log_template` | `Weekly Work Log` in the templates folder |
-| Standups | `standup_folder` | `10 - Meetings/<anything> Standup/`, or `10 - Meetings/Standup/`. Files `MM-DD-YY.md` |
+| Standups | `standup_folder` | `10 - Meetings/<anything> Standup/`, or `10 - Meetings/Standup/`. Files `YYYY/MM - Month/MM-DD-YY.md` inside it |
 | Standup template | `standup_template` | `Standup Template` in the templates folder |
 | Dev notes | `dev_note_folder` | `20 - Projects/**/Dev/`, one note per ticket |
 | Dev note template | `dev_note_template` | `Development Template` in the templates folder |
