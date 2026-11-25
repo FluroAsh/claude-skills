@@ -31,6 +31,7 @@ If these skills already exist as loose files in `~/.claude/skills` or `~/.claude
 | `compact-notes` | Condenses a note, one section of it, or pasted text, keeping decisions, owners and open questions. Works on its own or loaded by other skills |
 | `create-pr` | Opens or updates a GitHub PR with a concise, reviewer-first description, shaped to the PR's type, with examples for common types, then humanized |
 | `humanizer` | Rewrites AI-sounding prose so it reads like a person wrote it, keeping what it says. Forked from [blader/humanizer](https://github.com/blader/humanizer) v4.0.0 (MIT). Works on its own, and the skills that draft prose run it before showing or writing it |
+| `guided-code-review` | Guided review of a PR from its URL: a plain summary, a review map (routes, environments, ticket, Confluence, API docs, files to read first), then a two-axis code review (Standards and Spec). Read-only. Invoke it yourself; it never triggers on its own |
 | `trace` | Traces an issue across Jira, GitHub, Confluence, Slack and notes, and checks it against your notes. Read-only |
 | `orchestrate` | Runs a large task with the main agent delegating to subagents. Invoke it yourself; it never triggers on its own |
 
@@ -47,10 +48,11 @@ Invoke skills namespaced, eg: `/ash-skills:standup`.
 | [Claude Code](https://code.claude.com/docs/en/overview) | Required | All | Nothing runs |
 | [Obsidian](https://obsidian.md) and its [CLI](https://obsidian.md/help/cli) | Required | All except `create-pr` and `orchestrate` | Vault skills can't read or write notes. Turn on **Settings → General → Command line interface** |
 | git, with `user.name` set | Required | Work-log skills, `standup` | Commits can't be matched to you |
-| Atlassian MCP server (Jira, Confluence) | Required for Jira steps | Work-log skills, `standup`, `trace`, `setup`; optional in `create-pr` | A skill that needs ticket status says so and skips that step. No CLI or API token is used |
-| [GitHub CLI](https://cli.github.com) (`gh`), signed in | Optional | Work-log skills, `standup`, `progress`, `trace`, `create-pr` | PR and review lookups are skipped; `create-pr` can't run |
+| Atlassian MCP server (Jira, Confluence) | Required for Jira steps | Work-log skills, `standup`, `trace`, `setup`, `guided-code-review`; optional in `create-pr` | A skill that needs ticket status says so and skips that step. No CLI or API token is used |
+| [GitHub CLI](https://cli.github.com) (`gh`), signed in | Optional | Work-log skills, `standup`, `progress`, `trace`, `create-pr`, `guided-code-review` | PR and review lookups are skipped; `create-pr` and `guided-code-review` can't run |
 | Slack MCP server | Optional | `daily-work-wrap`, `weekly-work-wrap`, `standup`, `progress`, `trace` | Slack signal is skipped |
 | [Sunsama](https://www.sunsama.com) MCP server | Optional | Work-log skills, `standup`, `progress`, `setup` | Skills work from git and your own input. It needs to expose `sunsama://tasks/{date}` and `sunsama://calendar/events/{date}` |
+| [mattpocock-skills](https://github.com/mattpocock/skills) `code-review` | Required for `guided-code-review` | `guided-code-review` | The summary and review map still print; the code review step can't run |
 
 ## Configuration
 
