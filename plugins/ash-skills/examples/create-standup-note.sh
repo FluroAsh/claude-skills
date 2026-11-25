@@ -19,10 +19,11 @@ fmt() {
 
 case $(fmt %u) in 6|7) exit 0 ;; esac
 
-note="$folder/$(fmt %m-%d-%y).md"
+dir="$folder/$(fmt %Y)/$(fmt '%m - %B')"
+note="$dir/$(fmt %m-%d-%y).md"
 [ -e "$note" ] && exit 0
 
-mkdir -p "$folder"
+mkdir -p "$dir"
 # noclobber makes the create atomic, so a note made between the check and here is never overwritten.
 (set -C; cat "$template" > "$note") 2>/dev/null || exit 0
 echo "created $note"

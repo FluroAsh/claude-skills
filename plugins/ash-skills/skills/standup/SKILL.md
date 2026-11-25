@@ -17,7 +17,7 @@ Read `${CLAUDE_PLUGIN_ROOT}/reference/config.md` once at the start of the run: i
 - File naming: `${user_config.log_filename_format}` (`log_filename_format`; else inferred from existing logs, `MM-DD-YY.md` if none), dated by the week's Monday
 Used only by `--after`:
 
-- Standups: `${user_config.standup_folder}/` (`standup_folder`; else `10 - Meetings/<anything> Standup/` or `10 - Meetings/Standup/`), files `MM-DD-YY.md`
+- Standups: `${user_config.standup_folder}/` (`standup_folder`; else `10 - Meetings/<anything> Standup/` or `10 - Meetings/Standup/`), files `YYYY/MM - Month/MM-DD-YY.md` inside it (e.g. `2026/11 - November/11-25-26.md`; create the year and month folders if missing)
 - Standup template: `${user_config.standup_template}` (`standup_template`; else `Standup Template` in the templates folder)
 - Team context: `${user_config.team_context_file}` (`team_context_file`; else a vault-root note ending in `Team` or `Squad`, else the Jira roster per config.md)
 
@@ -301,7 +301,7 @@ Compacts pasted meeting notes into the day's standup note. Writes only that note
 
 ### Step A1 — Find the day's note
 
-`{standup_folder}/{date}.md`. If it doesn't exist, create it from the standup template via the Obsidian CLI (Write if the CLI fails). The template is frontmatter plus a paste hint; this mode writes the sections.
+`{standup_folder}/{YYYY}/{MM} - {Month}/{date}.md` (year and month from `{date}`). If it doesn't exist, create the folders and create it from the standup template via the Obsidian CLI (Write if the CLI fails). The template is frontmatter plus a paste hint; this mode writes the sections.
 
 ### Step A2 — Find the source
 
